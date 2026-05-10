@@ -98,6 +98,11 @@ function loadSpeciesData() {
     loadCategoryData('cereales', speciesData.cereales);
     loadCategoryData('cotonnier', speciesData.cotonnier);
     loadCategoryData('luzerne', speciesData.luzerne);
+    
+    // Charger les auxiliaires
+    if (typeof beneficialInsects !== 'undefined') {
+        loadCategoryData('auxiliaires', beneficialInsects);
+    }
 
     // Stocker toutes les espèces pour la recherche
     allSpecies = { ...speciesData };
@@ -189,6 +194,27 @@ function openSpeciesModal(specie) {
     modalClassification.textContent = `Ordre: ${specie.order}, Famille: ${specie.family}`;
     modalCultures.textContent = specie.cultures;
     modalDescription.textContent = specie.description;
+
+    // Ajouter les nouvelles sections (IPM et Auxiliaires)
+    const modalInfo = modal.querySelector('.modal-info');
+    
+    // Nettoyer les anciennes sections dynamiques
+    const dynamicSections = modalInfo.querySelectorAll('.dynamic-section');
+    dynamicSections.forEach(s => s.remove());
+
+    if (specie.management) {
+        const mgmtSection = document.createElement('div');
+        mgmtSection.className = 'info-section dynamic-section';
+        mgmtSection.innerHTML = `<h3>🛡️ Conseils de Lutte (IPM)</h3><p>${specie.management}</p>`;
+        modalInfo.appendChild(mgmtSection);
+    }
+
+    if (specie.beneficials) {
+        const benSection = document.createElement('div');
+        benSection.className = 'info-section dynamic-section';
+        benSection.innerHTML = `<h3>🐞 Auxiliaires Naturels</h3><p>${specie.beneficials}</p>`;
+        modalInfo.appendChild(benSection);
+    }
     
     // Afficher la modal
     modal.style.display = 'block';

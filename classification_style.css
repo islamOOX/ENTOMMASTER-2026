@@ -341,6 +341,14 @@ body {
     color: #f0e68c;
 }
 
+.highlight {
+    background: rgba(240, 230, 140, 0.3);
+    color: #f0e68c;
+    padding: 0 2px;
+    border-radius: 3px;
+    font-weight: 700;
+}
+
 /* Modal */
 .modal {
     display: none;
