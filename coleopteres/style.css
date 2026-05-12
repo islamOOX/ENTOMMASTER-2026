@@ -1,429 +1,512 @@
-/* Reset et styles de base */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+/* ============================================================
+   ENTOMASTER – Coléoptères – Style (version améliorée)
+   Thème : naturaliste sombre, or & vert forêt
+   ============================================================ */
+
+:root {
+    --color-bg: #0b1710;
+    --color-bg-2: #131e15;
+    --color-surface: rgba(22, 40, 25, 0.92);
+    --color-surface-hover: rgba(32, 58, 36, 0.95);
+    --color-gold: #c9a84c;
+    --color-gold-light: #e8cb7a;
+    --color-text: #d8e8dc;
+    --color-text-muted: #8aab92;
+    --color-accent: #4e8c5f;
+    --color-border: rgba(201, 168, 76, 0.2);
+    --color-family-bg: rgba(30, 55, 35, 0.85);
+    --font-display: 'Playfair Display', Georgia, serif;
+    --font-body: 'Source Sans 3', 'Segoe UI', sans-serif;
+    --radius: 14px;
+    --shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    --transition: 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* ---------- Reset & Base ---------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    line-height: 1.6;
-    color: #333;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    font-family: var(--font-body);
+    background: var(--color-bg)
+        radial-gradient(ellipse at 15% 30%, rgba(50, 100, 60, 0.15) 0%, transparent 60%);
+    color: var(--color-text);
+    line-height: 1.7;
     min-height: 100vh;
-    position: relative;
     overflow-x: hidden;
 }
 
-/* Particules d'arrière-plan */
-.particles {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    pointer-events: none;
-}
+/* Accessibilité */
+:focus-visible { outline: 2px solid var(--color-gold); outline-offset: 3px; border-radius: 4px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
 
+/* ---------- Particules ---------- */
+.particles {
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 0;
+}
 .particle {
     position: absolute;
-    width: 4px;
-    height: 4px;
-    background: rgba(255, 255, 255, 0.3);
+    width: 3px; height: 3px;
+    background: rgba(201, 168, 76, 0.25);
     border-radius: 50%;
-    animation: float 6s ease-in-out infinite;
+    animation: float 7s ease-in-out infinite;
 }
-
 @keyframes float {
-    0%, 100% {
-        transform: translateY(0px) rotate(0deg);
-        opacity: 0.3;
-    }
-    50% {
-        transform: translateY(-20px) rotate(180deg);
-        opacity: 0.8;
-    }
+    0%, 100% { transform: translateY(0) scale(1); opacity: 0.25; }
+    50%       { transform: translateY(-22px) scale(1.2); opacity: 0.6; }
 }
 
-/* Container principal */
+/* ---------- Navigation supérieure ---------- */
+.top-nav {
+    position: sticky; top: 0; z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.75rem 2rem;
+    background: rgba(8, 14, 10, 0.95);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--color-border);
+}
+.back-link {
+    color: var(--color-gold);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: color var(--transition);
+}
+.back-link:hover { color: var(--color-gold-light); }
+.order-switcher {
+    display: flex;
+    gap: 0.25rem;
+    flex-wrap: wrap;
+}
+.order-switcher a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+    font-size: 0.82rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: 50px;
+    border: 1px solid transparent;
+    transition: var(--transition);
+}
+.order-switcher a:hover {
+    color: var(--color-gold);
+    border-color: var(--color-border);
+    background: rgba(201,168,76,0.07);
+}
+
+/* ---------- Fil d'Ariane ---------- */
+.breadcrumb-nav { padding: 0.5rem 2rem; background: var(--color-bg-2); }
+.breadcrumb {
+    list-style: none;
+    display: flex;
+    gap: 0.5rem;
+    font-size: 0.82rem;
+    color: var(--color-text-muted);
+    position: relative; z-index: 1;
+}
+.breadcrumb li + li::before { content: '›'; margin-right: 0.5rem; }
+.breadcrumb a { color: var(--color-gold); text-decoration: none; }
+.breadcrumb a:hover { color: var(--color-gold-light); }
+.breadcrumb [aria-current="page"] { color: var(--color-text); }
+
+/* ---------- Container ---------- */
 .container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 20px;
-    position: relative;
-    z-index: 1;
+    padding: 2rem 1.5rem 4rem;
+    position: relative; z-index: 1;
 }
 
-/* En-tête */
+/* ---------- En-tête de page ---------- */
 .header {
     text-align: center;
-    margin-bottom: 50px;
-    background: rgba(255, 255, 255, 0.95);
-    padding: 40px;
-    border-radius: 20px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    margin-bottom: 2.5rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    padding: 3rem 2rem 2rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
 }
-
+.order-prefix {
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    margin-bottom: 0.5rem;
+}
+.order-prefix strong { color: var(--color-gold); }
 .header h1 {
-    font-size: 3.5rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 15px;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    color: var(--color-gold-light);
+    margin-bottom: 0.5rem;
 }
-
 .header .subtitle {
-    font-size: 1.4rem;
-    color: #666;
-    font-weight: 500;
-    margin-bottom: 10px;
-}
-
-.header p {
     font-size: 1.1rem;
-    color: #888;
-    font-style: italic;
+    color: var(--color-text-muted);
+    margin-bottom: 0.25rem;
 }
+.header-desc { font-size: 0.9rem; color: rgba(138,171,146,0.7); font-style: italic; }
 
-/* Modèle 3D */
-.model-3d-container {
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 20px;
-    padding: 30px;
-    margin-bottom: 50px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.model-3d-container h2 {
-    text-align: center;
-    font-size: 2rem;
-    color: #333;
-    margin-bottom: 25px;
-    font-weight: 600;
-}
-
-#model-viewer {
-    width: 100%;
-    height: 500px;
-    border-radius: 15px;
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    background: #f8f9fa;
-}
-
-/* Sections des familles */
-.family-section {
-    margin-bottom: 60px;
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 20px;
-    padding: 40px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    transition: all 0.3s ease;
-}
-
-.family-section:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
-}
-
-.family-title {
-    font-size: 2.2rem;
-    color: #333;
-    margin-bottom: 30px;
-    text-align: center;
-    font-weight: 600;
-    position: relative;
-    padding-bottom: 15px;
-}
-
-.family-title::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80px;
-    height: 3px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    border-radius: 2px;
-}
-
-/* Grille des espèces */
-.species-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 30px;
-    margin-top: 30px;
-}
-
-/* Cartes des espèces */
-.species-card {
-    background: #fff;
-    border-radius: 15px;
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    cursor: pointer;
-    border: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-.species-card:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-}
-
-.species-image {
-    width: 100%;
-    height: 250px;
-    object-fit: cover;
-    transition: all 0.3s ease;
-}
-
-.species-card:hover .species-image {
-    transform: scale(1.05);
-}
-
-.species-card > div:not(.species-info) {
-    padding: 0 20px;
-}
-
-.species-name {
-    font-size: 1.3rem;
-    font-weight: 600;
-    color: #333;
-    margin: 15px 20px 5px;
-    line-height: 1.3;
-}
-
-.species-name em {
-    color: #667eea;
-}
-
-.species-author {
-    font-size: 0.95rem;
-    color: #666;
-    margin: 0 20px 10px;
-    font-style: italic;
-}
-
-.species-common-name {
-    font-size: 1.1rem;
-    color: #764ba2;
-    font-weight: 500;
-    margin: 0 20px 15px;
-    min-height: 1.5rem;
-}
-
-.species-info {
-    padding: 15px 20px 20px;
+.taxo-pills {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+}
+.taxo-pill {
+    font-size: 0.78rem;
+    font-style: italic;
+    color: var(--color-text-muted);
+    background: rgba(201,168,76,0.08);
+    border: 1px solid var(--color-border);
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
 }
 
-.info-tag {
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    color: white;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 500;
+/* ---------- Barre de filtres ---------- */
+.filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 1rem 1.5rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+.filter-search { flex: 1; min-width: 200px; }
+.filter-search input {
+    width: 100%;
+    padding: 0.55rem 1rem;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--color-border);
+    border-radius: 50px;
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 0.92rem;
+    transition: var(--transition);
+}
+.filter-search input:focus { border-color: var(--color-gold); background: rgba(255,255,255,0.09); outline: none; }
+.filter-search input::placeholder { color: var(--color-text-muted); }
+.filter-select select {
+    padding: 0.55rem 1rem;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--color-border);
+    border-radius: 50px;
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+.filter-select select:focus { border-color: var(--color-gold); outline: none; }
+.filter-select select option { background: #162219; color: var(--color-text); }
+.filter-count {
+    font-size: 0.82rem;
+    color: var(--color-text-muted);
     white-space: nowrap;
 }
 
-/* Tooltip */
-.species-tooltip {
-    position: absolute;
-    background: rgba(0, 0, 0, 0.95);
-    color: white;
-    padding: 20px;
-    border-radius: 12px;
-    max-width: 400px;
-    z-index: 1000;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+/* ---------- Modèle 3D ---------- */
+.model-3d-container {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 2rem;
+    margin-bottom: 3rem;
+    box-shadow: var(--shadow);
 }
-
-.species-tooltip.show {
-    opacity: 1;
-    visibility: visible;
-}
-
-.tooltip-title {
-    font-size: 1.2rem;
-    font-weight: 600;
-    margin-bottom: 15px;
-    color: #667eea;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    padding-bottom: 10px;
-}
-
-.tooltip-content {
-    font-size: 0.95rem;
-    line-height: 1.5;
-    margin-bottom: 8px;
-}
-
-.tooltip-content:last-child {
-    margin-bottom: 0;
-}
-
-.tooltip-content strong {
-    color: #764ba2;
-    font-weight: 600;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .container {
-        padding: 15px;
-    }
-    
-    .header {
-        padding: 25px;
-        margin-bottom: 30px;
-    }
-    
-    .header h1 {
-        font-size: 2.5rem;
-    }
-    
-    .header .subtitle {
-        font-size: 1.2rem;
-    }
-    
-    .species-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-    
-    .family-section {
-        padding: 25px;
-        margin-bottom: 40px;
-    }
-    
-    .family-title {
-        font-size: 1.8rem;
-    }
-    
-    .model-3d-container {
-        padding: 20px;
-    }
-    
-    #model-viewer {
-        height: 350px;
-    }
-    
-    .species-tooltip {
-        max-width: 300px;
-        padding: 15px;
-    }
-}
-
-@media (max-width: 480px) {
-    .header h1 {
-        font-size: 2rem;
-    }
-    
-    .species-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .species-card {
-        margin: 0 10px;
-    }
-    
-    .species-image {
-        height: 200px;
-    }
-}
-
-/* Animations d'entrée */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.family-section {
-    animation: fadeInUp 0.6s ease forwards;
-}
-
-/* Amélioration de l'accessibilité */
-.species-card:focus {
-    outline: 3px solid #667eea;
-    outline-offset: 2px;
-}
-
-/* Styles pour les images manquantes */
-.species-image[src*="placeholder"] {
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #666;
-    font-size: 0.9rem;
+.model-3d-container h2 {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    color: var(--color-gold-light);
     text-align: center;
+    margin-bottom: 1rem;
+}
+#model-viewer {
+    width: 100%;
+    height: 420px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #0d1a10;
+    border: 1px solid var(--color-border);
+}
+.model-caption {
+    text-align: center;
+    margin-top: 0.75rem;
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+    font-style: italic;
+}
+.model-note {
+    margin-top: 1.2rem;
+    padding: 1rem 1.2rem;
+    background: rgba(201,168,76,0.06);
+    border-left: 3px solid var(--color-gold);
+    border-radius: 0 8px 8px 0;
+    font-size: 0.88rem;
+    color: var(--color-text-muted);
+    line-height: 1.6;
+}
+.model-note strong { color: var(--color-text); }
+.model-note a { color: var(--color-gold); text-decoration: underline; }
+
+/* ---------- Sections par famille ---------- */
+.family-section {
+    margin-bottom: 3rem;
+}
+.family-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 1.2rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--color-border);
+}
+.family-title {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    color: var(--color-gold-light);
+}
+.family-count {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    background: rgba(201,168,76,0.08);
+    padding: 0.2rem 0.6rem;
+    border-radius: 50px;
+    border: 1px solid var(--color-border);
 }
 
-/* Amélioration du modèle 3D */
-model-viewer {
-    --poster-color: transparent;
-    --progress-bar-color: #667eea;
+/* ---------- Grille d'espèces ---------- */
+.species-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.2rem;
 }
 
-/* Effets de survol améliorés */
-.species-card::before {
-    content: '';
+.species-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+    display: flex;
+    flex-direction: column;
+}
+.species-card:hover, .species-card:focus-within {
+    transform: translateY(-5px);
+    border-color: var(--color-gold);
+    box-shadow: 0 12px 35px rgba(0,0,0,0.45), 0 0 15px rgba(201,168,76,0.1);
+}
+
+.species-image {
+    aspect-ratio: 4/3;
+    overflow: hidden;
+    background: #0d1a10;
+    position: relative;
+}
+.species-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+    display: block;
+}
+.species-card:hover .species-image img { transform: scale(1.06); }
+
+/* Badge de famille sur l'image */
+.species-image::after {
+    content: attr(data-family);
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    pointer-events: none;
-}
-
-.species-card:hover::before {
-    opacity: 1;
-}
-
-/* Scrollbar personnalisée */
-::-webkit-scrollbar {
-    width: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    bottom: 6px; left: 6px;
+    background: rgba(0,0,0,0.65);
+    color: var(--color-gold);
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
     border-radius: 4px;
+    font-style: italic;
+    backdrop-filter: blur(4px);
 }
 
-::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #5a6fd8, #6a4190);
+.species-info {
+    padding: 1rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+.species-info h4 {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    font-style: italic;
+    color: var(--color-text);
+    font-weight: 700;
+    line-height: 1.3;
+}
+.species-common-name {
+    font-size: 0.82rem;
+    color: var(--color-gold-light);
+    font-weight: 600;
+}
+.species-family {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    font-style: italic;
+}
+.species-host {
+    font-size: 0.75rem;
+    color: var(--color-accent);
+    margin-top: auto;
+    padding-top: 0.4rem;
+}
+.species-size {
+    font-size: 0.72rem;
+    color: rgba(138,171,146,0.6);
 }
 
+/* Bouton "En savoir plus" dans la card */
+.species-btn {
+    display: block;
+    text-align: center;
+    margin: 0 1rem 1rem;
+    padding: 0.4rem;
+    background: rgba(201,168,76,0.08);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    color: var(--color-gold);
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: background var(--transition);
+}
+.species-btn:hover { background: rgba(201,168,76,0.18); }
+
+/* ---------- Tooltip ---------- */
+.species-tooltip {
+    position: fixed;
+    display: none;
+    max-width: 340px;
+    background: rgba(10, 22, 13, 0.97);
+    border: 1px solid var(--color-gold);
+    border-radius: var(--radius);
+    padding: 1.2rem;
+    z-index: 500;
+    box-shadow: var(--shadow);
+    pointer-events: none;
+    backdrop-filter: blur(10px);
+}
+.species-tooltip.visible { display: block; }
+.tooltip-title {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    color: var(--color-gold-light);
+    font-style: italic;
+    margin-bottom: 0.6rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--color-border);
+}
+.tooltip-content {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    line-height: 1.55;
+}
+.tooltip-content .tooltip-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.3rem;
+}
+.tooltip-content .tooltip-label { color: var(--color-text); font-weight: 600; flex-shrink: 0; }
+
+/* ---------- Aucun résultat ---------- */
+.no-results {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--color-text-muted);
+}
+.no-results p { margin-bottom: 1rem; }
+#resetFilters {
+    background: rgba(201,168,76,0.1);
+    border: 1px solid var(--color-border);
+    color: var(--color-gold);
+    padding: 0.5rem 1.5rem;
+    border-radius: 50px;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    transition: var(--transition);
+}
+#resetFilters:hover { background: rgba(201,168,76,0.2); }
+
+/* ---------- Références de page ---------- */
+.page-references {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 1.5rem 2rem;
+    margin-top: 3rem;
+}
+.page-references h3 {
+    font-family: var(--font-display);
+    color: var(--color-gold-light);
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+.page-references ul { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+.page-references li {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    padding-left: 1rem;
+    border-left: 2px solid var(--color-border);
+    line-height: 1.5;
+}
+.page-references a { color: var(--color-gold); text-decoration: underline; }
+
+/* ---------- Retour en haut ---------- */
+#backToTop {
+    position: fixed;
+    bottom: 2rem; right: 2rem;
+    width: 42px; height: 42px;
+    background: var(--color-gold);
+    color: #0a1408;
+    border: none; border-radius: 50%;
+    font-size: 1rem;
+    cursor: pointer;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s, transform 0.3s;
+    box-shadow: 0 4px 15px rgba(201,168,76,0.4);
+    z-index: 900;
+}
+#backToTop.visible { opacity: 1; pointer-events: auto; }
+#backToTop:hover { transform: scale(1.12); }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 900px) {
+    .species-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+    #model-viewer { height: 300px; }
+}
+@media (max-width: 600px) {
+    .top-nav { flex-direction: column; gap: 0.5rem; }
+    .order-switcher { justify-content: center; }
+    .container { padding: 1rem; }
+    .filter-bar { flex-direction: column; }
+    .filter-search { min-width: auto; }
+    .species-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+    .header { padding: 1.5rem 1rem; }
+}
+@media (max-width: 380px) {
+    .species-grid { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}

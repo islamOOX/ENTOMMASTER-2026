@@ -1,326 +1,346 @@
-// Script principal pour la page Coléoptères
+/**
+ * ENTOMASTER – Coléoptères – Script (version améliorée)
+ * Fonctionnalités :
+ * - Rendu dynamique des espèces par famille
+ * - Filtrage par nom, famille, plante hôte (temps réel)
+ * - Tooltip enrichi au survol
+ * - Particules d'arrière-plan
+ * - Retour en haut
+ */
 
-document.addEventListener('DOMContentLoaded', function() {
-    initializeParticles();
-    // Attendre que speciesData soit disponible
-    const checkSpeciesData = setInterval(() => {
-        if (window.speciesData) {
-            clearInterval(checkSpeciesData);
-            renderSpecies();
-            initializeTooltips();
-        }
-    }, 100);
-});
+'use strict';
 
-// Initialisation des particules d'arrière-plan
+/* ============================================================
+   Initialisation des particules
+   ============================================================ */
 function initializeParticles() {
-    const particlesContainer = document.getElementById('particles');
-    const particleCount = 50;
-
-    for (let i = 0; i < particleCount; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'particle';
-        particle.style.left = Math.random() * 100 + '%';
-        particle.style.top = Math.random() * 100 + '%';
-        particle.style.animationDelay = Math.random() * 6 + 's';
-        particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
-        particlesContainer.appendChild(particle);
+    const container = document.getElementById('particles');
+    if (!container) return;
+    const count = window.innerWidth < 600 ? 20 : 40;
+    const frag = document.createDocumentFragment();
+    for (let i = 0; i < count; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.left = `${Math.random() * 100}%`;
+        p.style.top = `${Math.random() * 100}%`;
+        p.style.animationDelay = `${(Math.random() * 6).toFixed(2)}s`;
+        p.style.animationDuration = `${(Math.random() * 4 + 5).toFixed(2)}s`;
+        frag.appendChild(p);
     }
+    container.appendChild(frag);
 }
 
-// Rendu des espèces par famille
+/* ============================================================
+   Rendu des espèces
+   ============================================================ */
+const FAMILY_ORDER = [
+    'buprestidae', 'curculionidae', 'scolytidae', 'chrysomelidae',
+    'cerambycidae', 'meloidae', 'coccinelidae', 'bostrychidae',
+    'elateridae', 'scarabaeidae', 'carabidae', 'dryophthoridae', 'nitidulidae'
+];
+
+const FAMILY_NAMES = {
+    buprestidae:   'Buprestidae',
+    curculionidae: 'Curculionidae',
+    scolytidae:    'Scolytidae (Scolytes)',
+    chrysomelidae: 'Chrysomelidae',
+    cerambycidae:  'Cerambycidae',
+    meloidae:      'Meloidae',
+    coccinelidae:  'Coccinelidae',
+    bostrychidae:  'Bostrychidae',
+    elateridae:    'Elateridae',
+    scarabaeidae:  'Scarabaeidae',
+    carabidae:     'Carabidae',
+    dryophthoridae:'Dryophthoridae',
+    nitidulidae:   'Nitidulidae',
+};
+
+let allCards = [];  // pour le filtrage
+
 function renderSpecies() {
     const container = document.getElementById('species-container');
-    
-    // Ordre des familles pour l'affichage
-    const familyOrder = [
-        'buprestidae',
-        'curculionidae',
-        'scolytidae',
-        'chrysomelidae',
-        'cerambycidae',
-        'meloidae',
-        'coccinelidae',
-        'bostrychidae',
-        'elateridae',
-        'scarabaeidae',
-        'carabidae',
-        'dryophthoridae',
-        'nitidulidae'
-    ];
+    if (!container || !window.speciesData) return;
 
-    // Noms français des familles
-    const familyNames = {
-        'buprestidae': 'Buprestidae',
-        'curculionidae': 'Curculionidae',
-        'scolytidae': 'Scolytidae',
-        'chrysomelidae': 'Chrysomelidae',
-        'cerambycidae': 'Cerambycidae',
-        'meloidae': 'Meloidae',
-        'coccinelidae': 'Coccinelidae',
-        'bostrychidae': 'Bostrychidae',
-        'elateridae': 'Elateridae',
-        'scarabaeidae': 'Scarabaeidae',
-        'carabidae': 'Carabidae',
-        'dryophthoridae': 'Dryophthoridae',
-        'nitidulidae': 'Nitidulidae'
-    };
+    const frag = document.createDocumentFragment();
+    allCards = [];
 
-    familyOrder.forEach(familyKey => {
-        if (window.speciesData[familyKey] && window.speciesData[familyKey].length > 0) {
-            const familySection = createFamilySection(familyKey, familyNames[familyKey], window.speciesData[familyKey]);
-            container.appendChild(familySection);
-        }
-    });
-}
+    FAMILY_ORDER.forEach(familyKey => {
+        const species = window.speciesData[familyKey];
+        if (!species || !species.length) return;
 
-// Création d'une section de famille
-function createFamilySection(familyKey, familyName, species) {
-    const section = document.createElement('section');
-    section.className = 'family-section';
-    section.id = `family-${familyKey}`;
+        const section = document.createElement('section');
+        section.className = 'family-section';
+        section.dataset.family = familyKey;
 
-    const title = document.createElement('h2');
-    title.className = 'family-title';
-    title.textContent = `Famille: ${familyName}`;
+        const header = document.createElement('div');
+        header.className = 'family-header';
+        header.innerHTML = `
+            <h2 class="family-title">Famille : <em>${FAMILY_NAMES[familyKey] || familyKey}</em></h2>
+            <span class="family-count">${species.length} espèce${species.length > 1 ? 's' : ''}</span>
+        `;
+        section.appendChild(header);
 
-    const grid = document.createElement('div');
-    grid.className = 'species-grid';
+        const grid = document.createElement('div');
+        grid.className = 'species-grid';
+        grid.setAttribute('role', 'list');
 
-    // Créer les cartes pour chaque espèce
-    species.forEach(speciesInfo => {
-        const card = createSpeciesCard(speciesInfo);
-        grid.appendChild(card);
+        species.forEach(sp => {
+            const card = createSpeciesCard(sp, familyKey);
+            grid.appendChild(card);
+            allCards.push({ el: card, sp, familyKey });
+        });
+
+        section.appendChild(grid);
+        frag.appendChild(section);
     });
 
-    section.appendChild(title);
-    section.appendChild(grid);
-
-    return section;
+    container.appendChild(frag);
+    updateFilterCount();
 }
 
-// Création d'une carte d'espèce
-function createSpeciesCard(species) {
-    const card = document.createElement('div');
+function createSpeciesCard(sp, familyKey) {
+    const card = document.createElement('article');
     card.className = 'species-card';
-    card.dataset.speciesId = species.id;
+    card.dataset.family = familyKey;
+    card.dataset.name = (sp.scientificName || '').toLowerCase();
+    card.dataset.common = (sp.commonName || '').toLowerCase();
+    card.dataset.host = (sp.host || '').toLowerCase();
+    card.setAttribute('role', 'listitem');
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('aria-label', `${sp.scientificName}${sp.commonName ? ' – ' + sp.commonName : ''}`);
 
-    // Image de l'espèce
-    const image = document.createElement('img');
-    image.className = 'species-image';
-    image.src = species.image;
-    image.alt = `${species.scientificName} - ${species.commonName}`;
-    image.onerror = function() {
-        this.src = 'https://via.placeholder.com/300x200/667eea/ffffff?text=Image+non+disponible';
-    };
+    const imgSrc = sp.image || 'placeholder.jpg';
+    const commonNameHTML = sp.commonName
+        ? `<p class="species-common-name">${escHtml(sp.commonName)}</p>`
+        : '';
+    const hostHTML = sp.host
+        ? `<p class="species-host">🌿 ${escHtml(sp.host)}</p>`
+        : '';
+    const sizeHTML = sp.size
+        ? `<p class="species-size">📏 ${escHtml(sp.size)}</p>`
+        : '';
+    const authorHTML = sp.author
+        ? `<small style="color:var(--color-text-muted);font-size:0.7rem;">${escHtml(sp.author)}</small>`
+        : '';
 
-    // Nom scientifique avec auteur
-    const scientificName = document.createElement('div');
-    scientificName.className = 'species-name';
-    scientificName.innerHTML = `<em>${species.scientificName}</em>`;
+    card.innerHTML = `
+        <div class="species-image" data-family="${escHtml(FAMILY_NAMES[familyKey] || familyKey)}">
+            <img src="${escHtml(imgSrc)}"
+                 alt="${escHtml(sp.scientificName)}"
+                 loading="lazy"
+                 width="300" height="225"
+                 onerror="this.src='../images/placeholder.jpg'">
+        </div>
+        <div class="species-info">
+            <h3 class="species-info h4" style="font-family:var(--font-display);font-style:italic;font-size:0.95rem;color:var(--color-text);font-weight:700;">
+                ${escHtml(sp.scientificName)}
+            </h3>
+            ${authorHTML}
+            ${commonNameHTML}
+            <p class="species-family" style="font-size:0.75rem;color:var(--color-text-muted);font-style:italic;">
+                ${escHtml(FAMILY_NAMES[familyKey] || familyKey)}
+            </p>
+            ${hostHTML}
+            ${sizeHTML}
+        </div>
+        <button class="species-btn" aria-expanded="false">Détails morphologiques ▸</button>
+    `;
 
-    const author = document.createElement('div');
-    author.className = 'species-author';
-    author.textContent = species.author;
+    // Tooltip au survol
+    card.addEventListener('mouseenter', (e) => showTooltip(e, sp));
+    card.addEventListener('mousemove', positionTooltip);
+    card.addEventListener('mouseleave', hideTooltip);
+    card.addEventListener('focus', (e) => showTooltip(e, sp));
+    card.addEventListener('blur', hideTooltip);
 
-    // Nom commun
-    const commonName = document.createElement('div');
-    commonName.className = 'species-common-name';
-    commonName.textContent = species.commonName;
-
-    // Informations de base
-    const infoContainer = document.createElement('div');
-    infoContainer.className = 'species-info';
-
-    const familyTag = document.createElement('span');
-    familyTag.className = 'info-tag';
-    familyTag.textContent = species.family;
-    infoContainer.appendChild(familyTag);
-
-    const sizeTag = document.createElement('span');
-    sizeTag.className = 'info-tag';
-    sizeTag.textContent = species.size;
-    infoContainer.appendChild(sizeTag);
-
-    if (species.suborder) {
-        const suborderTag = document.createElement('span');
-        suborderTag.className = 'info-tag';
-        suborderTag.textContent = species.suborder;
-        infoContainer.appendChild(suborderTag);
-    }
-
-    // Assemblage de la carte
-    card.appendChild(image);
-    card.appendChild(scientificName);
-    card.appendChild(author);
-    card.appendChild(commonName);
-    card.appendChild(infoContainer);
+    // Bouton détails
+    const btn = card.querySelector('.species-btn');
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleDetails(card, sp, btn);
+    });
 
     return card;
 }
 
-// Initialisation des tooltips
-function initializeTooltips() {
+/* ============================================================
+   Tooltip
+   ============================================================ */
+function showTooltip(e, sp) {
     const tooltip = document.getElementById('species-tooltip');
-    const cards = document.querySelectorAll('.species-card');
+    if (!tooltip) return;
 
-    cards.forEach(card => {
-        card.addEventListener('mouseenter', function(e) {
-            const speciesId = this.dataset.speciesId;
-            const species = findSpeciesById(speciesId);
-            
-            if (species) {
-                showTooltip(e, species, tooltip);
-            }
-        });
+    tooltip.querySelector('.tooltip-title').textContent = `${sp.scientificName}${sp.author ? ' ' + sp.author : ''}`;
+    tooltip.querySelector('.tooltip-content').innerHTML = buildTooltipContent(sp);
+    tooltip.classList.add('visible');
+    positionTooltip(e);
+}
 
-        card.addEventListener('mouseleave', function() {
-            hideTooltip(tooltip);
-        });
+function buildTooltipContent(sp) {
+    const rows = [];
+    if (sp.commonName) rows.push(['Nom commun', sp.commonName]);
+    if (sp.suborder) rows.push(['Sous-ordre', sp.suborder]);
+    if (sp.color) rows.push(['Couleur', sp.color]);
+    if (sp.size) rows.push(['Taille', sp.size]);
+    if (sp.host) rows.push(['Plante hôte', sp.host]);
+    if (sp.description) rows.push(['Description', sp.description]);
 
-        card.addEventListener('mousemove', function(e) {
-            updateTooltipPosition(e, tooltip);
-        });
+    return rows.map(([label, val]) =>
+        `<div class="tooltip-row"><span class="tooltip-label">${escHtml(label)} :</span><span>${escHtml(val)}</span></div>`
+    ).join('');
+}
+
+function positionTooltip(e) {
+    const tooltip = document.getElementById('species-tooltip');
+    if (!tooltip || !tooltip.classList.contains('visible')) return;
+    const margin = 16;
+    const tw = tooltip.offsetWidth;
+    const th = tooltip.offsetHeight;
+    let x = (e.clientX || 0) + margin;
+    let y = (e.clientY || 0) + margin;
+    if (x + tw > window.innerWidth - margin) x = (e.clientX || 0) - tw - margin;
+    if (y + th > window.innerHeight - margin) y = (e.clientY || 0) - th - margin;
+    tooltip.style.left = `${x}px`;
+    tooltip.style.top = `${y}px`;
+}
+
+function hideTooltip() {
+    const tooltip = document.getElementById('species-tooltip');
+    if (tooltip) tooltip.classList.remove('visible');
+}
+
+/* ============================================================
+   Détails inline (toggle)
+   ============================================================ */
+function toggleDetails(card, sp, btn) {
+    let detailsEl = card.querySelector('.species-details');
+    if (detailsEl) {
+        const open = detailsEl.style.display !== 'none';
+        detailsEl.style.display = open ? 'none' : 'block';
+        btn.setAttribute('aria-expanded', !open);
+        btn.textContent = open ? 'Détails morphologiques ▸' : 'Masquer les détails ▾';
+    } else {
+        detailsEl = document.createElement('div');
+        detailsEl.className = 'species-details';
+        detailsEl.style.cssText = 'padding:0 1rem 1rem;font-size:0.84rem;color:var(--color-text-muted);line-height:1.55;border-top:1px solid var(--color-border);margin-top:0.5rem;';
+        detailsEl.innerHTML = `
+            ${sp.description ? `<p style="margin:0.5rem 0">${escHtml(sp.description)}</p>` : ''}
+            ${sp.color ? `<p><strong>Couleur :</strong> ${escHtml(sp.color)}</p>` : ''}
+            ${sp.size ? `<p><strong>Taille :</strong> ${escHtml(sp.size)}</p>` : ''}
+            ${sp.host ? `<p><strong>Plante hôte :</strong> ${escHtml(sp.host)}</p>` : ''}
+            <p style="margin-top:0.5rem;font-style:italic;font-size:0.75rem;color:rgba(138,171,146,0.5)">
+                Nomenclature conforme au <a href="https://www.catalogueoflife.org" target="_blank" rel="noopener noreferrer" style="color:var(--color-gold)">Catalogue of Life</a>
+            </p>
+        `;
+        card.insertBefore(detailsEl, btn);
+        btn.setAttribute('aria-expanded', 'true');
+        btn.textContent = 'Masquer les détails ▾';
+    }
+}
+
+/* ============================================================
+   Filtrage
+   ============================================================ */
+function initFilters() {
+    const searchInput = document.getElementById('speciesSearch');
+    const familySelect = document.getElementById('familyFilter');
+    const noResults = document.getElementById('no-results');
+    const resetBtn = document.getElementById('resetFilters');
+
+    let debounce;
+    const applyFilters = () => {
+        clearTimeout(debounce);
+        debounce = setTimeout(() => {
+            const query = (searchInput?.value || '').toLowerCase().trim();
+            const family = (familySelect?.value || '').toLowerCase();
+
+            let visible = 0;
+            const familySections = {};
+
+            allCards.forEach(({ el, sp, familyKey }) => {
+                const matchSearch = !query ||
+                    el.dataset.name.includes(query) ||
+                    el.dataset.common.includes(query) ||
+                    el.dataset.host.includes(query);
+                const matchFamily = !family || familyKey === family;
+                const show = matchSearch && matchFamily;
+                el.style.display = show ? '' : 'none';
+                if (show) {
+                    visible++;
+                    familySections[familyKey] = true;
+                }
+            });
+
+            // Masquer les sections de famille vides
+            document.querySelectorAll('.family-section').forEach(sec => {
+                sec.style.display = familySections[sec.dataset.family] ? '' : 'none';
+            });
+
+            if (noResults) noResults.hidden = visible > 0;
+            updateFilterCount(visible);
+        }, 120);
+    };
+
+    searchInput?.addEventListener('input', applyFilters);
+    familySelect?.addEventListener('change', applyFilters);
+    resetBtn?.addEventListener('click', () => {
+        if (searchInput) searchInput.value = '';
+        if (familySelect) familySelect.value = '';
+        applyFilters();
     });
 }
 
-// Trouver une espèce par son ID
-function findSpeciesById(id) {
-    for (const family in window.speciesData) {
-        const species = window.speciesData[family].find(s => s.id === id);
-        if (species) return species;
-    }
-    return null;
+function updateFilterCount(visible) {
+    const countEl = document.getElementById('filterCount');
+    if (!countEl) return;
+    const total = allCards.length;
+    const shown = visible !== undefined ? visible : total;
+    countEl.textContent = shown === total
+        ? `${total} espèces`
+        : `${shown} / ${total} espèces`;
 }
 
-// Afficher le tooltip
-function showTooltip(event, species, tooltip) {
-    const titleElement = tooltip.querySelector('.tooltip-title');
-    const contentElement = tooltip.querySelector('.tooltip-content');
-
-    titleElement.innerHTML = `<em>${species.scientificName}</em> ${species.author}`;
-    
-    let content = `
-        <div class="tooltip-section"><strong>Nom commun:</strong> ${species.commonName || 'Non spécifié'}</div>
-        <div class="tooltip-section"><strong>Famille:</strong> ${species.family}</div>
-        <div class="tooltip-section"><strong>Sous-ordre:</strong> ${species.suborder}</div>
-        <div class="tooltip-section"><strong>Taille:</strong> ${species.size}</div>
-        <div class="tooltip-section"><strong>Couleur:</strong> ${species.color}</div>
-        <div class="tooltip-section"><strong>Hôte:</strong> ${species.host}</div>
-        <div class="tooltip-section"><strong>Description:</strong> ${species.description}</div>
-    `;
-
-    contentElement.innerHTML = content;
-    
-    updateTooltipPosition(event, tooltip);
-    tooltip.classList.add('show');
+/* ============================================================
+   Retour en haut
+   ============================================================ */
+function initBackToTop() {
+    const btn = document.getElementById('backToTop');
+    if (!btn) return;
+    window.addEventListener('scroll', () => {
+        btn.classList.toggle('visible', window.scrollY > 400);
+    }, { passive: true });
+    btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 }
 
-// Cacher le tooltip
-function hideTooltip(tooltip) {
-    tooltip.classList.remove('show');
+/* ============================================================
+   Utilitaires
+   ============================================================ */
+function escHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
 }
 
-// Mettre à jour la position du tooltip
-function updateTooltipPosition(event, tooltip) {
-    const tooltipRect = tooltip.getBoundingClientRect();
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
-    
-    let left = event.pageX + 15;
-    let top = event.pageY - 10;
-    
-    // Ajuster si le tooltip dépasse à droite
-    if (left + tooltipRect.width > viewportWidth) {
-        left = event.pageX - tooltipRect.width - 15;
-    }
-    
-    // Ajuster si le tooltip dépasse en bas
-    if (top + tooltipRect.height > viewportHeight + window.scrollY) {
-        top = event.pageY - tooltipRect.height - 10;
-    }
-    
-    // Ajuster si le tooltip dépasse en haut
-    if (top < window.scrollY) {
-        top = event.pageY + 15;
-    }
-    
-    tooltip.style.left = left + 'px';
-    tooltip.style.top = top + 'px';
-}
+/* ============================================================
+   Init global
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', () => {
+    initializeParticles();
 
-// Animation d'apparition progressive des cartes
-function animateCards() {
-    const cards = document.querySelectorAll('.species-card');
-    
-    cards.forEach((card, index) => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(30px)';
-        
-        setTimeout(() => {
-            card.style.transition = 'all 0.6s ease';
-            card.style.opacity = '1';
-            card.style.transform = 'translateY(0)';
-        }, index * 100);
-    });
-}
-
-// Fonction de recherche (optionnelle pour future extension)
-function searchSpecies(query) {
-    const cards = document.querySelectorAll('.species-card');
-    const searchTerm = query.toLowerCase();
-    
-    cards.forEach(card => {
-        const speciesId = card.dataset.speciesId;
-        const species = findSpeciesById(speciesId);
-        
-        if (species) {
-            const searchableText = `
-                ${species.scientificName} 
-                ${species.commonName} 
-                ${species.family} 
-                ${species.host}
-            `.toLowerCase();
-            
-            if (searchableText.includes(searchTerm)) {
-                card.style.display = 'block';
-            } else {
-                card.style.display = 'none';
-            }
+    // Attendre speciesData (chargé en tant que script séparé)
+    const waitForData = setInterval(() => {
+        if (window.speciesData) {
+            clearInterval(waitForData);
+            renderSpecies();
+            initFilters();
+            initBackToTop();
         }
-    });
-}
+    }, 50);
 
-// Gestion du redimensionnement de la fenêtre
-window.addEventListener('resize', function() {
-    const tooltip = document.getElementById('species-tooltip');
-    hideTooltip(tooltip);
+    // Timeout de sécurité
+    setTimeout(() => clearInterval(waitForData), 5000);
 });
-
-// Animation au scroll (optionnelle)
-function handleScrollAnimation() {
-    const sections = document.querySelectorAll('.family-section');
-    
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
-            }
-        });
-    }, {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    });
-    
-    sections.forEach(section => {
-        section.style.opacity = '0';
-        section.style.transform = 'translateY(30px)';
-        section.style.transition = 'all 0.6s ease';
-        observer.observe(section);
-    });
-}
-
-// Initialiser l'animation au scroll après le chargement
-setTimeout(handleScrollAnimation, 500);
-

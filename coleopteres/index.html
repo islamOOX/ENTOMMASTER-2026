@@ -3,58 +3,174 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ordre: Coléoptères - Principales Espèces Nuisibles aux Cultures</title>
+    <title>Coléoptères – Espèces Nuisibles aux Cultures | ENTOMASTER</title>
+    <meta name="description" content="Classification scientifique des coléoptères nuisibles aux cultures : Curculionidae, Chrysomelidae, Buprestidae, Cerambycidae et plus. Photos HD, morphologie, plantes hôtes.">
+    <meta name="keywords" content="coléoptères, charançons, curculionidae, chrysomelidae, buprestidae, cerambycidae, insectes nuisibles, ravageurs cultures">
+    <link rel="canonical" href="../coleopteres/index.html">
+
+    <!-- Données structurées Schema.org -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "name": "Coléoptères nuisibles aux cultures",
+      "description": "Inventaire scientifique des coléoptères (Coleoptera) nuisibles aux cultures agricoles",
+      "isPartOf": { "@type": "WebSite", "name": "ENTOMASTER" },
+      "breadcrumb": {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Accueil", "item": "../index.html" },
+          { "@type": "ListItem", "position": 2, "name": "Coléoptères" }
+        ]
+      }
+    }
+    </script>
+
     <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
     <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 </head>
 <body>
+
     <!-- Particules d'arrière-plan -->
-    <div class="particles" id="particles"></div>
+    <div class="particles" id="particles" aria-hidden="true"></div>
+
+    <!-- Navigation -->
+    <nav class="top-nav" aria-label="Navigation principale">
+        <a href="../index.html" class="back-link">← Accueil ENTOMASTER</a>
+        <div class="order-switcher" aria-label="Naviguer entre les ordres">
+            <a href="../lepidopteres/index.html">Lépidoptères</a>
+            <a href="../dipteres/index.html">Diptères</a>
+            <a href="../orthopteres/index.html">Orthoptères</a>
+            <a href="../thysanopteres/index.html">Thysanoptères</a>
+            <a href="../classification_par_culture.html">Par Culture</a>
+        </div>
+    </nav>
+
+    <!-- Fil d'Ariane -->
+    <nav aria-label="Fil d'Ariane" class="breadcrumb-nav">
+        <ol class="breadcrumb">
+            <li><a href="../index.html">Accueil</a></li>
+            <li aria-current="page">Coléoptères</li>
+        </ol>
+    </nav>
 
     <div class="container">
+
         <!-- En-tête -->
-        <header class="header">
-            <h1>Ordre: Coléoptères</h1>
+        <header class="header" role="banner">
+            <p class="order-prefix" aria-label="Ordre taxonomique">Ordre : <strong>Coleoptera</strong></p>
+            <h1>Coléoptères</h1>
             <p class="subtitle">Principales espèces nuisibles aux cultures</p>
-            <p>Classification scientifique et caractéristiques morphologiques</p>
+            <p class="header-desc">Classification scientifique · Caractéristiques morphologiques · Plantes hôtes</p>
+
+            <!-- Résumé taxonomique rapide -->
+            <div class="taxo-pills" aria-label="Familles représentées">
+                <span class="taxo-pill">Curculionidae</span>
+                <span class="taxo-pill">Chrysomelidae</span>
+                <span class="taxo-pill">Buprestidae</span>
+                <span class="taxo-pill">Cerambycidae</span>
+                <span class="taxo-pill">Scolytidae</span>
+                <span class="taxo-pill">Elateridae</span>
+                <span class="taxo-pill">Scarabaeidae</span>
+                <span class="taxo-pill">Meloidae</span>
+            </div>
         </header>
 
+        <!-- Filtres de recherche et tri -->
+        <div class="filter-bar" role="search" aria-label="Filtrer les espèces">
+            <div class="filter-search">
+                <label for="speciesSearch" class="sr-only">Rechercher une espèce</label>
+                <input type="search" id="speciesSearch" placeholder="Filtrer par nom, famille, plante hôte…"
+                    aria-label="Rechercher une espèce de coléoptère">
+            </div>
+            <div class="filter-select">
+                <label for="familyFilter" class="sr-only">Filtrer par famille</label>
+                <select id="familyFilter" aria-label="Filtrer par famille taxonomique">
+                    <option value="">Toutes les familles</option>
+                    <option value="curculionidae">Curculionidae</option>
+                    <option value="chrysomelidae">Chrysomelidae</option>
+                    <option value="buprestidae">Buprestidae</option>
+                    <option value="cerambycidae">Cerambycidae</option>
+                    <option value="scolytidae">Scolytidae</option>
+                    <option value="elateridae">Elateridae</option>
+                    <option value="scarabaeidae">Scarabaeidae</option>
+                </select>
+            </div>
+            <div class="filter-count" id="filterCount" aria-live="polite" aria-atomic="true"></div>
+        </div>
+
         <!-- Modèle 3D -->
-        <div class="model-3d-container">
-            <h2>Modèle 3D - Morphologie générale d'un Coléoptère</h2>
-            <div id="model-viewer">
-                <model-viewer 
-                    src="coleoptere.glb" 
-                    alt="Modèle 3D d'un Coléoptère"
-                    auto-rotate 
-                    camera-controls 
-                    background-color="#f8f9fa"
+        <section class="model-3d-container" aria-labelledby="model-title">
+            <h2 id="model-title">Morphologie générale – Modèle 3D interactif</h2>
+            <div id="model-viewer" role="img" aria-label="Modèle 3D interactif d'un Coléoptère">
+                <model-viewer
+                    src="coleoptere.glb"
+                    alt="Modèle 3D d'un Coléoptère – morphologie générale"
+                    auto-rotate
+                    camera-controls
                     shadow-intensity="1"
                     camera-orbit="45deg 75deg 2.5m"
-                    style="width: 100%; height: 100%;">
+                    style="width: 100%; height: 100%;"
+                    loading="lazy">
                     <div slot="progress-bar" style="display: none;"></div>
                 </model-viewer>
             </div>
-            <p style="text-align: center; margin-top: 15px; color: #666; font-style: italic;">
-                Modèle 3D interactif - Utilisez la souris pour faire tourner et zoomer
+            <p class="model-caption" aria-label="Instructions d'utilisation du modèle 3D">
+                🖱️ Cliquez et faites glisser pour faire pivoter · Scroll pour zoomer · Double-clic pour réinitialiser
             </p>
+
+            <!-- Note taxonomique rapide -->
+            <div class="model-note">
+                <strong>Coleoptera</strong> (Linné, 1758) — L'ordre le plus riche en espèces du règne animal (~400 000 espèces décrites).
+                Caractérisé par ses <em>élytres</em> rigides protégeant les ailes membraneuses. Stades : œuf → larve → nymphe → imago
+                (métamorphose holométabole).
+                <br><small>Source : <a href="https://www.catalogueoflife.org" target="_blank" rel="noopener noreferrer">Catalogue of Life 2024</a></small>
+            </div>
+        </section>
+
+        <!-- Container des espèces (généré dynamiquement) -->
+        <main id="species-container" aria-label="Liste des espèces de coléoptères">
+            <!-- Contenu généré par species_data.js + script.js -->
+        </main>
+
+        <!-- Message si aucun résultat -->
+        <div id="no-results" class="no-results" hidden aria-live="polite">
+            <p>Aucune espèce ne correspond à votre recherche.</p>
+            <button id="resetFilters">Réinitialiser les filtres</button>
         </div>
 
-        <!-- Sections des familles -->
-        <main id="species-container">
-            <!-- Le contenu sera généré dynamiquement par JavaScript -->
-        </main>
+        <!-- Références en bas de page -->
+        <aside class="page-references" aria-labelledby="ref-aside-title">
+            <h3 id="ref-aside-title">📚 Sources pour les Coléoptères</h3>
+            <ul>
+                <li>
+                    Alonso-Zarazaga, M.A. et al. (2017). <em>Cooperative Catalogue of Palaearctic Coleoptera Curculionoidea</em>.
+                    Monografías electrónicas SEA, 8.
+                    <a href="https://www.sea-entomologia.org" target="_blank" rel="noopener noreferrer">sea-entomologia.org</a>
+                </li>
+                <li>
+                    EPPO (2024). <em>Pest datasheets – Coleoptera</em>.
+                    <a href="https://gd.eppo.int/search?q=coleoptera" target="_blank" rel="noopener noreferrer">gd.eppo.int</a>
+                </li>
+                <li>
+                    Bonnemaison, L. (1962). <em>Les ennemis animaux des plantes cultivées</em>. SEP – La Maison Rustique.
+                </li>
+            </ul>
+        </aside>
     </div>
 
-    <!-- Tooltip pour les détails -->
-    <div id="species-tooltip" class="species-tooltip">
+    <!-- Tooltip espèce -->
+    <div id="species-tooltip" class="species-tooltip" role="tooltip" aria-live="polite">
         <div class="tooltip-title"></div>
         <div class="tooltip-content"></div>
     </div>
 
-    <!-- Scripts -->
+    <!-- Bouton retour en haut -->
+    <button id="backToTop" aria-label="Revenir en haut de page">▲</button>
+
     <script src="species_data.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
-

@@ -3,321 +3,316 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Classification par Culture - ENTOMASTER</title>
+    <title>Classification par Culture – Ravageurs Agricoles | ENTOMASTER</title>
+    <meta name="description" content="Identifiez les insectes nuisibles par type de culture : maraîchage, arboriculture, grandes cultures, cultures ornementales. Référence entomologique pratique pour agriculteurs et techniciens.">
+    <meta name="keywords" content="ravageurs cultures, insectes nuisibles agriculture, maraîchage, arboriculture, grandes cultures, protection phytosanitaire">
+    <link rel="canonical" href="classification_par_culture.html">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "name": "Classification des ravageurs par culture",
+      "description": "Identification des insectes nuisibles organisée par type de culture agricole",
+      "isPartOf": { "@type": "WebSite", "name": "ENTOMASTER" },
+      "breadcrumb": {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Accueil", "item": "./index.html" },
+          { "@type": "ListItem", "position": 2, "name": "Classification par culture" }
+        ]
+      }
+    }
+    </script>
+
     <link rel="stylesheet" href="./classification_style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
+
     <!-- Navigation -->
-    <nav class="navbar">
+    <nav class="navbar" role="navigation" aria-label="Navigation principale">
         <div class="nav-container">
             <div class="nav-brand">
-                <a href="./index.html">🐛 ENTOMASTER</a>
+                <a href="./index.html" aria-label="ENTOMASTER – Accueil">🐛 ENTOMASTER</a>
             </div>
-            <ul class="nav-menu">
-                <li><a href="./index.html">🏠 Accueil</a></li>
-                <li><a href="#" class="active">🌾 Classification par Culture</a></li>
-                <li><a href="#about">ℹ️ À propos</a></li>
+            <ul class="nav-menu" id="navMenu" role="menubar">
+                <li role="none"><a href="./index.html" role="menuitem">🏠 Accueil</a></li>
+                <li role="none"><a href="#" class="active" role="menuitem" aria-current="page">🌾 Par Culture</a></li>
+                <li role="none"><a href="#about" role="menuitem">ℹ️ À propos</a></li>
+                <li role="none"><a href="#references" role="menuitem">📚 Références</a></li>
             </ul>
+            <button class="hamburger" id="hamburger" aria-label="Ouvrir le menu" aria-expanded="false">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Fil d'Ariane -->
+    <nav aria-label="Fil d'Ariane" class="breadcrumb-nav">
+        <div class="breadcrumb-container">
+            <ol class="breadcrumb">
+                <li><a href="./index.html">Accueil</a></li>
+                <li aria-current="page">Classification par culture</li>
+            </ol>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <header class="hero-section">
+    <header class="hero-section" role="banner">
         <div class="hero-content">
+            <p class="hero-eyebrow">Approche agronomique pratique</p>
             <h1 class="hero-title">🌾 Classification par Culture</h1>
-            <p class="hero-subtitle">Découvrez les insectes nuisibles organisés par type de culture</p>
-            
-            <!-- Search Bar -->
-            <div class="search-container">
+            <p class="hero-subtitle">Identifiez les insectes nuisibles organisés par type de culture</p>
+
+            <!-- Barre de recherche -->
+            <div class="search-container" role="search" aria-label="Rechercher un ravageur ou une culture">
                 <div class="search-bar">
-                    <i class="fas fa-search search-icon"></i>
-                    <input type="text" id="cultureSearch" placeholder="Rechercher une culture, une espèce...">
-                    <button id="searchBtn" class="search-btn">Rechercher</button>
+                    <i class="fas fa-search search-icon" aria-hidden="true"></i>
+                    <label for="cultureSearch" class="sr-only">Rechercher une culture ou une espèce</label>
+                    <input type="search" id="cultureSearch"
+                        placeholder="Rechercher une culture, un ravageur, une espèce…"
+                        aria-label="Rechercher une culture ou une espèce"
+                        autocomplete="off">
+                    <button id="searchBtn" class="search-btn" aria-label="Lancer la recherche">
+                        <i class="fas fa-search" aria-hidden="true"></i> Rechercher
+                    </button>
                 </div>
+                <div id="liveSearchResults" class="live-search-results" role="listbox" aria-live="polite" aria-label="Résultats de recherche en direct"></div>
             </div>
+
+            <!-- Compteur de résultats -->
+            <p class="result-count" id="resultCount" aria-live="polite" aria-atomic="true"></p>
         </div>
     </header>
 
     <!-- Main Content -->
-    <main class="main-content">
-        <!-- Category Tabs -->
-        <div class="tabs-container">
+    <main class="main-content" id="main-content">
+
+        <!-- Onglets de catégories -->
+        <div class="tabs-container" role="tablist" aria-label="Catégories de cultures">
             <div class="tabs-nav">
-                <button class="tab-btn active" data-tab="maraicheres">
+                <button class="tab-btn active" data-tab="maraicheres" role="tab"
+                    aria-selected="true" aria-controls="maraicheres" id="tab-maraicheres">
                     🥬 Cultures Maraîchères
                 </button>
-                <button class="tab-btn" data-tab="arboriculture">
+                <button class="tab-btn" data-tab="arboriculture" role="tab"
+                    aria-selected="false" aria-controls="arboriculture" id="tab-arboriculture">
                     🍎 Arboriculture Fruitière
                 </button>
-                <button class="tab-btn" data-tab="ornementales">
+                <button class="tab-btn" data-tab="ornementales" role="tab"
+                    aria-selected="false" aria-controls="ornementales" id="tab-ornementales">
                     🌿 Cultures Ornementales
                 </button>
-                <button class="tab-btn" data-tab="grandes-cultures">
+                <button class="tab-btn" data-tab="grandes-cultures" role="tab"
+                    aria-selected="false" aria-controls="grandes-cultures" id="tab-grandes-cultures">
                     🌾 Grandes Cultures
-                </button>
-                <button class="tab-btn" data-tab="auxiliaires">
-                    🐞 Auxiliaires
                 </button>
             </div>
         </div>
 
-        <!-- Tab Content -->
+        <!-- Contenu des onglets -->
         <div class="tab-content-container">
+
             <!-- Cultures Maraîchères -->
-            <div id="maraicheres" class="tab-content active">
+            <div id="maraicheres" class="tab-content active"
+                role="tabpanel" aria-labelledby="tab-maraicheres">
                 <div class="culture-category">
                     <h2 class="category-title">🥬 Cultures Maraîchères</h2>
-                    
-                    <!-- Crucifères -->
+
                     <div class="culture-group">
                         <h3 class="culture-title">
-                            <i class="fas fa-leaf"></i>
-                            Crucifères (Chou, Colza, Radis)
+                            <i class="fas fa-leaf" aria-hidden="true"></i>
+                            Crucifères <span class="culture-subtitle">(Chou, Colza, Radis, Navet)</span>
                         </h3>
-                        <div class="species-grid" id="cruciferes-grid">
-                            <!-- Species cards will be populated by JavaScript -->
-                        </div>
+                        <div class="species-grid" id="cruciferes-grid" role="list"></div>
                     </div>
 
-                    <!-- Solanacées -->
                     <div class="culture-group">
                         <h3 class="culture-title">
-                            <i class="fas fa-pepper-hot"></i>
-                            Solanacées (Tomate, Pomme de terre)
+                            <i class="fas fa-pepper-hot" aria-hidden="true"></i>
+                            Solanacées <span class="culture-subtitle">(Tomate, Pomme de terre, Poivron)</span>
                         </h3>
-                        <div class="species-grid" id="solanacees-grid">
-                            <!-- Species cards will be populated by JavaScript -->
-                        </div>
+                        <div class="species-grid" id="solanacees-grid" role="list"></div>
                     </div>
 
-                    <!-- Cucurbitacées -->
                     <div class="culture-group">
                         <h3 class="culture-title">
-                            <i class="fas fa-seedling"></i>
-                            Cucurbitacées (Concombre, Courgette)
+                            <i class="fas fa-seedling" aria-hidden="true"></i>
+                            Cucurbitacées <span class="culture-subtitle">(Concombre, Courgette, Melon)</span>
                         </h3>
-                        <div class="species-grid" id="cucurbitacees-grid">
-                            <!-- Species cards will be populated by JavaScript -->
-                        </div>
+                        <div class="species-grid" id="cucurbitacees-grid" role="list"></div>
                     </div>
 
-                    <!-- Légumineuses -->
                     <div class="culture-group">
                         <h3 class="culture-title">
-                            <i class="fas fa-spa"></i>
-                            Légumineuses (Pois, Fève, Haricot)
+                            <i class="fas fa-spa" aria-hidden="true"></i>
+                            Légumineuses <span class="culture-subtitle">(Pois, Fève, Haricot, Lentille)</span>
                         </h3>
-                        <div class="species-grid" id="legumineuses-grid">
-                            <!-- Species cards will be populated by JavaScript -->
-                        </div>
+                        <div class="species-grid" id="legumineuses-grid" role="list"></div>
                     </div>
 
-                    <!-- Betterave -->
                     <div class="culture-group">
                         <h3 class="culture-title">
-                            <i class="fas fa-carrot"></i>
+                            <i class="fas fa-carrot" aria-hidden="true"></i>
                             Betterave à sucre
                         </h3>
-                        <div class="species-grid" id="betterave-grid">
-                            <!-- Species cards will be populated by JavaScript -->
-                        </div>
+                        <div class="species-grid" id="betterave-grid" role="list"></div>
                     </div>
                 </div>
             </div>
 
             <!-- Arboriculture Fruitière -->
-            <div id="arboriculture" class="tab-content">
+            <div id="arboriculture" class="tab-content"
+                role="tabpanel" aria-labelledby="tab-arboriculture" hidden>
                 <div class="culture-category">
                     <h2 class="category-title">🍎 Arboriculture Fruitière</h2>
-                    
-                    <!-- Rosacées à noyaux -->
+
                     <div class="culture-group">
                         <h3 class="culture-title">
-                            <i class="fas fa-apple-alt"></i>
-                            Rosacées à noyaux (Pêcher, Abricotier, Prunier)
+                            <i class="fas fa-tree" aria-hidden="true"></i>
+                            Olivier <span class="culture-subtitle">(Olea europaea)</span>
                         </h3>
-                        <div class="species-grid" id="rosacees-noyaux-grid">
-                            <!-- Species cards will be populated by JavaScript -->
-                        </div>
+                        <div class="species-grid" id="olivier-grid" role="list"></div>
                     </div>
 
-                    <!-- Rosacées à pépins -->
                     <div class="culture-group">
                         <h3 class="culture-title">
-                            <i class="fas fa-apple-alt"></i>
-                            Rosacées à pépins (Pommier, Poirier)
+                            <i class="fas fa-lemon" aria-hidden="true"></i>
+                            Agrumes <span class="culture-subtitle">(Citronnier, Oranger, Mandarinier)</span>
                         </h3>
-                        <div class="species-grid" id="rosacees-pepins-grid">
-                            <!-- Species cards will be populated by JavaScript -->
-                        </div>
+                        <div class="species-grid" id="agrumes-grid" role="list"></div>
                     </div>
 
-                    <!-- Agrumes -->
                     <div class="culture-group">
                         <h3 class="culture-title">
-                            <i class="fas fa-lemon"></i>
-                            Agrumes (Citronnier, Oranger)
+                            <i class="fas fa-apple-alt" aria-hidden="true"></i>
+                            Rosacées fruitières <span class="culture-subtitle">(Pommier, Poirier, Cerisier, Pêcher)</span>
                         </h3>
-                        <div class="species-grid" id="agrumes-grid">
-                            <!-- Species cards will be populated by JavaScript -->
-                        </div>
+                        <div class="species-grid" id="rosacees-grid" role="list"></div>
                     </div>
 
-                    <!-- Vigne -->
                     <div class="culture-group">
                         <h3 class="culture-title">
-                            <i class="fas fa-wine-bottle"></i>
-                            Vigne
+                            <i class="fas fa-wine-glass" aria-hidden="true"></i>
+                            Vigne <span class="culture-subtitle">(Vitis vinifera)</span>
                         </h3>
-                        <div class="species-grid" id="vigne-grid">
-                            <!-- Species cards will be populated by JavaScript -->
-                        </div>
+                        <div class="species-grid" id="vigne-grid" role="list"></div>
                     </div>
 
-                    <!-- Fruits rouges -->
                     <div class="culture-group">
                         <h3 class="culture-title">
-                            <i class="fas fa-strawberry"></i>
-                            Fruits rouges
+                            <i class="fas fa-palm-tree" aria-hidden="true"></i>
+                            Palmier dattier & Phoenix
                         </h3>
-                        <div class="species-grid" id="fruits-rouges-grid">
-                            <!-- Species cards will be populated by JavaScript -->
-                        </div>
+                        <div class="species-grid" id="palmier-grid" role="list"></div>
                     </div>
                 </div>
             </div>
 
             <!-- Cultures Ornementales -->
-            <div id="ornementales" class="tab-content">
+            <div id="ornementales" class="tab-content"
+                role="tabpanel" aria-labelledby="tab-ornementales" hidden>
                 <div class="culture-category">
                     <h2 class="category-title">🌿 Cultures Ornementales</h2>
-                    
-                    <!-- Olivier -->
                     <div class="culture-group">
                         <h3 class="culture-title">
-                            <i class="fas fa-tree"></i>
-                            Olivier
+                            <i class="fas fa-flower" aria-hidden="true"></i>
+                            Plantes ornementales générales
                         </h3>
-                        <div class="species-grid" id="olivier-grid">
-                            <!-- Species cards will be populated by JavaScript -->
-                        </div>
-                    </div>
-
-                    <!-- Arbres ornementaux -->
-                    <div class="culture-group">
-                        <h3 class="culture-title">
-                            <i class="fas fa-tree"></i>
-                            Arbres ornementaux (Lilas, Troène)
-                        </h3>
-                        <div class="species-grid" id="ornementaux-grid">
-                            <!-- Species cards will be populated by JavaScript -->
-                        </div>
-                    </div>
-
-                    <!-- Palmiers -->
-                    <div class="culture-group">
-                        <h3 class="culture-title">
-                            <i class="fas fa-palm-tree"></i>
-                            Palmiers
-                        </h3>
-                        <div class="species-grid" id="palmiers-grid">
-                            <!-- Species cards will be populated by JavaScript -->
-                        </div>
+                        <div class="species-grid" id="ornementales-grid" role="list"></div>
                     </div>
                 </div>
             </div>
 
             <!-- Grandes Cultures -->
-            <div id="grandes-cultures" class="tab-content">
+            <div id="grandes-cultures" class="tab-content"
+                role="tabpanel" aria-labelledby="tab-grandes-cultures" hidden>
                 <div class="culture-category">
                     <h2 class="category-title">🌾 Grandes Cultures</h2>
-                    
-                    <!-- Céréales -->
+
                     <div class="culture-group">
                         <h3 class="culture-title">
-                            <i class="fas fa-wheat"></i>
-                            Céréales (Blé, Orge, Avoine, Maïs)
+                            <i class="fas fa-wheat" aria-hidden="true"></i>
+                            Céréales <span class="culture-subtitle">(Blé, Orge, Maïs, Sorgho)</span>
                         </h3>
-                        <div class="species-grid" id="cereales-grid">
-                            <!-- Species cards will be populated by JavaScript -->
-                        </div>
+                        <div class="species-grid" id="cereales-grid" role="list"></div>
                     </div>
 
-                    <!-- Cotonnier -->
                     <div class="culture-group">
                         <h3 class="culture-title">
-                            <i class="fas fa-cloud"></i>
-                            Cotonnier
+                            <i class="fas fa-sun" aria-hidden="true"></i>
+                            Tournesol & Oléagineux
                         </h3>
-                        <div class="species-grid" id="cotonnier-grid">
-                            <!-- Species cards will be populated by JavaScript -->
-                        </div>
-                    </div>
-
-                    <!-- Luzerne -->
-                    <div class="culture-group">
-                        <h3 class="culture-title">
-                            <i class="fas fa-leaf"></i>
-                            Luzerne
-                        </h3>
-                        <div class="species-grid" id="luzerne-grid">
-                            <!-- Species cards will be populated by JavaScript -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Auxiliaires -->
-            <div id="auxiliaires" class="tab-content">
-                <div class="culture-category">
-                    <h2 class="category-title">🐞 Insectes Auxiliaires</h2>
-                    <div class="culture-group">
-                        <h3 class="culture-title">
-                            <i class="fas fa-shield-alt"></i>
-                            Les alliés des cultures
-                        </h3>
-                        <div class="species-grid" id="auxiliaires-grid">
-                            <!-- Populated by JS -->
-                        </div>
+                        <div class="species-grid" id="oleagineux-grid" role="list"></div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Section À propos -->
+        <section id="about" class="about-section" aria-labelledby="about-title">
+            <div class="about-inner">
+                <h2 id="about-title">ℹ️ À propos de cette classification</h2>
+                <p>
+                    Cette classification agronomique organise les insectes nuisibles selon leurs cultures hôtes principales,
+                    permettant une identification rapide sur le terrain. Elle est complémentaire de la classification
+                    taxonomique par ordre entomologique disponible sur la <a href="./index.html">page d'accueil</a>.
+                </p>
+                <p>
+                    Les associations espèce–culture sont basées sur les données de l'<strong>OEPP Global Database</strong>
+                    et des publications de l'<strong>INRA</strong>, avec un focus particulier sur les cultures du
+                    bassin méditerranéen.
+                </p>
+            </div>
+        </section>
+
+        <!-- Références scientifiques -->
+        <section id="references" class="references-section" aria-labelledby="ref-title">
+            <div class="references-inner">
+                <h2 id="ref-title">📚 Références</h2>
+                <ul class="references-list">
+                    <li>
+                        <strong>OEPP/EPPO</strong> (2024). <em>EPPO Global Database – crop pests datasheets</em>.
+                        <a href="https://gd.eppo.int" target="_blank" rel="noopener noreferrer">gd.eppo.int</a>
+                    </li>
+                    <li>
+                        <strong>Bonnemaison, L.</strong> (1962). <em>Les ennemis animaux des plantes cultivées et des forêts</em>.
+                        SEP – La Maison Rustique, Paris.
+                    </li>
+                    <li>
+                        <strong>Zahiri, R. et al.</strong> (2011). Molecular phylogenetics of Erebidae (Lepidoptera).
+                        <em>Systematic Entomology</em>, 37(1), 102–124.
+                    </li>
+                    <li>
+                        <strong>Vayssière, P.</strong> (1919–1920). Les insectes nuisibles aux cultures du Maroc.
+                        <em>Bull. Soc. ent. France</em>.
+                        <a href="https://doi.org/10.3406/bsef.1919.26513" target="_blank" rel="noopener noreferrer">DOI</a>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
     </main>
 
-    <!-- Species Modal -->
-    <div id="speciesModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <div class="modal-header">
-                <h2 id="modalTitle"></h2>
-                <p id="modalSubtitle"></p>
-            </div>
-            <div class="modal-body">
-                <div class="modal-image">
-                    <img id="modalImage" src="" alt="">
-                </div>
-                <div class="modal-info">
-                    <div class="info-section">
-                        <h3>🔬 Classification</h3>
-                        <p id="modalClassification"></p>
-                    </div>
-                    <div class="info-section">
-                        <h3>🌱 Cultures attaquées</h3>
-                        <p id="modalCultures"></p>
-                    </div>
-                    <div class="info-section">
-                        <h3>📝 Description</h3>
-                        <p id="modalDescription"></p>
-                    </div>
-                </div>
-            </div>
+    <!-- Footer -->
+    <footer role="contentinfo">
+        <div class="footer-content">
+            <p>&copy; 2025 ENTOMASTER. Tous droits réservés. | Site éducatif non commercial.</p>
+            <p>
+                <a href="./index.html">Accueil</a> ·
+                <a href="coleopteres/index.html">Coléoptères</a> ·
+                <a href="lepidopteres/index.html">Lépidoptères</a> ·
+                <a href="https://gd.eppo.int" target="_blank" rel="noopener noreferrer">EPPO Global DB</a>
+            </p>
         </div>
-    </div>
+    </footer>
 
-    <!-- Scripts -->
+    <!-- Retour en haut -->
+    <button id="backToTop" aria-label="Revenir en haut de page">▲</button>
+
     <script src="./classification_data.js"></script>
     <script src="./classification_script.js"></script>
 </body>
