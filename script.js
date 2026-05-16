@@ -1,294 +1,330 @@
 /**
- * ENTOMASTER – Script principal (version améliorée)
- * Fonctionnalités : navigation mobile, recherche globale,
- * compteurs animés, retour en haut, navigation clavier.
+ * ENTOMASTER – Script principal unifié v2
+ * - Recherche globale sur 129 espèces (GLOBAL_SEARCH_INDEX)
+ * - Modal de détail au clic sur un résultat de recherche
+ * - Compteurs animés
+ * - Navigation mobile
+ * - Retour en haut
+ * - Masquage/affichage navbar au scroll
  */
-
 'use strict';
 
-/* ============================================================
-   Données pour la recherche globale (noms + urls)
-   ============================================================ */
-const SEARCH_INDEX = [
-    // Coléoptères
-    { name: 'Capnodis tenebrionis', common: 'Bupreste du pêcher', url: 'coleopteres/index.html', order: 'Coléoptères' },
-    { name: 'Hypera postica', common: 'Charançon de la luzerne', url: 'coleopteres/index.html', order: 'Coléoptères' },
-    { name: 'Otiorhynchus cribricollis', common: 'Otiorhynque de la vigne', url: 'coleopteres/index.html', order: 'Coléoptères' },
-    { name: 'Rhynchophorus ferrugineus', common: 'Charançon rouge du palmier', url: 'coleopteres/index.html', order: 'Coléoptères' },
-    { name: 'Agriotes lineatus', common: 'Taupin des céréales', url: 'coleopteres/index.html', order: 'Coléoptères' },
-    { name: 'Sitona lineatus', common: 'Sitone des légumineuses', url: 'coleopteres/index.html', order: 'Coléoptères' },
-    { name: 'Epilachna chrysomelina', common: 'Coccinelle des cucurbitacées', url: 'coleopteres/index.html', order: 'Coléoptères' },
-    { name: 'Phyllotreta nemorum', common: 'Altise des crucifères', url: 'coleopteres/index.html', order: 'Coléoptères' },
-    { name: 'Zabrus tenebrionides', common: 'Zabrus des céréales', url: 'coleopteres/index.html', order: 'Coléoptères' },
-    { name: 'Tropinotа hirta', common: 'Tropinote hérissée', url: 'coleopteres/index.html', order: 'Coléoptères' },
-    // Lépidoptères
-    { name: 'Prays oleae', common: 'Teigne de l\'olivier', url: 'lepidopteres/index.html', order: 'Lépidoptères' },
-    { name: 'Lobesia botrana', common: 'Tordeuse de la grappe', url: 'lepidopteres/index.html', order: 'Lépidoptères' },
-    { name: 'Tuta absoluta', common: 'Mineuse de la tomate', url: 'lepidopteres/index.html', order: 'Lépidoptères' },
-    { name: 'Cydia pomonella', common: 'Carpocapse des pommes', url: 'lepidopteres/index.html', order: 'Lépidoptères' },
-    { name: 'Spodoptera exigua', common: 'Légionnaire', url: 'lepidopteres/index.html', order: 'Lépidoptères' },
-    { name: 'Agrotis ipsilon', common: 'Ver gris', url: 'lepidopteres/index.html', order: 'Lépidoptères' },
-    { name: 'Cossus cossus', common: 'Cossus gâte-bois', url: 'lepidopteres/index.html', order: 'Lépidoptères' },
-    { name: 'Zeuzera pyrina', common: 'Zeuzère du poirier', url: 'lepidopteres/index.html', order: 'Lépidoptères' },
-    { name: 'Phthorimaea operculella', common: 'Teigne de la pomme de terre', url: 'lepidopteres/index.html', order: 'Lépidoptères' },
-    { name: 'Anarsia lineatella', common: 'Anarsia du pêcher', url: 'lepidopteres/index.html', order: 'Lépidoptères' },
-    // Diptères
-    { name: 'Ceratitis capitata', common: 'Mouche méditerranéenne des fruits', url: 'dipteres/index.html', order: 'Diptères' },
-    { name: 'Bactrocera oleae', common: 'Mouche de l\'olivier', url: 'dipteres/index.html', order: 'Diptères' },
-    { name: 'Delia radicum', common: 'Mouche du chou', url: 'dipteres/index.html', order: 'Diptères' },
-    { name: 'Liriomyza trifolii', common: 'Mineuse américaine', url: 'dipteres/index.html', order: 'Diptères' },
-    // Orthoptères
-    { name: 'Locusta migratoria', common: 'Criquet migrateur', url: 'orthopteres/index.html', order: 'Orthoptères' },
-    { name: 'Dociostaurus maroccanus', common: 'Criquet marocain', url: 'orthopteres/index.html', order: 'Orthoptères' },
-    { name: 'Calliptamus barbarus', common: 'Criquet barbare', url: 'orthopteres/index.html', order: 'Orthoptères' },
-    { name: 'Oedaleus senegalensis', common: 'Criquet sénégalais', url: 'orthopteres/index.html', order: 'Orthoptères' },
-    // Thysanoptères
-    { name: 'Frankliniella occidentalis', common: 'Thrips californien', url: 'thysanopteres/index.html', order: 'Thysanoptères' },
-    { name: 'Thrips tabaci', common: 'Thrips du tabac', url: 'thysanopteres/index.html', order: 'Thysanoptères' },
-    { name: 'Pezothrips kellyanus', common: 'Thrips des agrumes', url: 'thysanopteres/index.html', order: 'Thysanoptères' },
-];
+/* ================================================================
+   UTILITAIRES
+   ================================================================ */
+const $ = id => document.getElementById(id);
+const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
-/* ============================================================
-   Navigation mobile
-   ============================================================ */
+const ORDER_ICONS = {
+    'Coléoptères':'🪲','Lépidoptères':'🦋','Diptères':'🪰',
+    'Hémiptères':'🐛','Thysanoptères':'🔬','Hyménoptères':'🐝',
+    'Orthoptères':'🦗','Acariens':'🕷️'
+};
+
+/* ================================================================
+   NAVIGATION MOBILE
+   ================================================================ */
 function initMobileNav() {
-    const hamburger = document.getElementById('hamburger');
-    const navMenu = document.getElementById('navMenu');
-    if (!hamburger || !navMenu) return;
+    const btn  = $('hamburger');
+    const menu = $('navMenu');
+    if (!btn || !menu) return;
 
-    hamburger.addEventListener('click', () => {
-        const isOpen = hamburger.classList.toggle('active');
-        navMenu.classList.toggle('active');
-        hamburger.setAttribute('aria-expanded', isOpen);
+    btn.addEventListener('click', () => {
+        const open = menu.classList.toggle('open');
+        btn.classList.toggle('active', open);
+        btn.setAttribute('aria-expanded', open);
     });
 
-    // Fermer en cliquant sur un lien
-    navMenu.querySelectorAll('a').forEach(link => {
-        link.addEventListener('click', () => {
-            hamburger.classList.remove('active');
-            navMenu.classList.remove('active');
-            hamburger.setAttribute('aria-expanded', 'false');
-        });
-    });
-
-    // Fermer au clic extérieur
-    document.addEventListener('click', (e) => {
-        if (!hamburger.contains(e.target) && !navMenu.contains(e.target)) {
-            hamburger.classList.remove('active');
-            navMenu.classList.remove('active');
-            hamburger.setAttribute('aria-expanded', 'false');
+    document.addEventListener('click', e => {
+        if (!btn.contains(e.target) && !menu.contains(e.target)) {
+            menu.classList.remove('open');
+            btn.classList.remove('active');
+            btn.setAttribute('aria-expanded','false');
         }
     });
 
-    // Navigation clavier : Échap ferme le menu
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && navMenu.classList.contains('active')) {
-            hamburger.classList.remove('active');
-            navMenu.classList.remove('active');
-            hamburger.setAttribute('aria-expanded', 'false');
-            hamburger.focus();
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && menu.classList.contains('open')) {
+            menu.classList.remove('open');
+            btn.classList.remove('active');
+            btn.setAttribute('aria-expanded','false');
+            btn.focus();
         }
     });
 }
 
-/* ============================================================
-   Smooth scroll pour ancres internes
-   ============================================================ */
+/* ================================================================
+   NAVBAR HIDE/SHOW ON SCROLL
+   ================================================================ */
+function initNavbarScroll() {
+    const nav = document.querySelector('.navbar');
+    if (!nav) return;
+    nav.style.transition = 'transform 0.3s ease';
+    let last = 0;
+    window.addEventListener('scroll', () => {
+        const y = window.scrollY;
+        const menuOpen = document.getElementById('navMenu')?.classList.contains('open');
+        if (y > 120 && y > last && !menuOpen) nav.classList.add('hidden');
+        else nav.classList.remove('hidden');
+        last = y;
+    }, {passive:true});
+}
+
+/* ================================================================
+   SMOOTH SCROLL ANCRES
+   ================================================================ */
 function initSmoothScroll() {
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', (e) => {
-            const targetId = anchor.getAttribute('href').slice(1);
-            const target = document.getElementById(targetId);
-            if (target) {
-                e.preventDefault();
-                const navH = document.querySelector('.navbar')?.offsetHeight || 72;
-                const top = target.getBoundingClientRect().top + window.scrollY - navH - 16;
-                window.scrollTo({ top, behavior: 'smooth' });
-                // Accessibilité : focus sur la cible
-                target.setAttribute('tabindex', '-1');
-                target.focus({ preventScroll: true });
-            }
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+        a.addEventListener('click', e => {
+            const id = a.getAttribute('href').slice(1);
+            const target = document.getElementById(id);
+            if (!target) return;
+            e.preventDefault();
+            const navH = document.querySelector('.navbar')?.offsetHeight || 68;
+            window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - navH - 12, behavior:'smooth' });
         });
     });
 }
 
-/* ============================================================
-   Clics sur les cartes d'ordres
-   ============================================================ */
+/* ================================================================
+   CARTES D'ORDRES (page d'accueil)
+   ================================================================ */
 function initOrderCards() {
-    const urlMap = {
-        'coleopteres':   './coleopteres/index.html',
-        'hemipteres':    './hemipteres/index.html',
-        'lepidopteres':  './lepidopteres/index.html',
-        'dipteres':      './dipteres/index.html',
-        'thysanopteres': './thysanopteres/index.html',
-        'hymenopteres':  './hymenopteres/index.html',
-        'orthopteres':   './orthopteres/index.html',
-    };
-
-    document.querySelectorAll('.order-card').forEach(card => {
-        const go = () => {
-            const order = card.dataset.order;
-            if (urlMap[order]) window.location.href = urlMap[order];
-        };
+    document.querySelectorAll('.order-card[data-href]').forEach(card => {
+        const go = () => window.location.href = card.dataset.href;
         card.addEventListener('click', go);
-        // Clavier : Entrée ou Espace
-        card.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); }
-        });
+        card.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' '){e.preventDefault();go();} });
     });
 }
 
-/* ============================================================
-   Recherche globale
-   ============================================================ */
+/* ================================================================
+   COMPTEURS ANIMÉS
+   ================================================================ */
+function initCounters() {
+    const els = document.querySelectorAll('.stat-n[data-to]');
+    if (!els.length) return;
+    const obs = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+            if (!e.isIntersecting) return;
+            const el = e.target;
+            const target = +el.dataset.to;
+            const step = 16;
+            const dur  = 1100;
+            const inc  = target / (dur / step);
+            let cur = 0;
+            const t = setInterval(() => {
+                cur = Math.min(cur + inc, target);
+                el.textContent = Math.floor(cur);
+                if (cur >= target) { el.textContent = target; clearInterval(t); }
+            }, step);
+            obs.unobserve(el);
+        });
+    }, {threshold:0.6});
+    els.forEach(el => obs.observe(el));
+}
+
+/* ================================================================
+   RETOUR EN HAUT
+   ================================================================ */
+function initBackToTop() {
+    const btn = $('backToTop');
+    if (!btn) return;
+    window.addEventListener('scroll', () => btn.classList.toggle('show', window.scrollY > 400), {passive:true});
+    btn.addEventListener('click', () => window.scrollTo({top:0,behavior:'smooth'}));
+}
+
+/* ================================================================
+   MODAL ESPÈCE (pour résultats de recherche)
+   ================================================================ */
+function openSpeciesModal(sp) {
+    const modal = $('speciesModal');
+    const body  = $('modalBody');
+    if (!modal || !body) return;
+
+    const icon = ORDER_ICONS[sp.order] || '🐛';
+    const imgHtml = sp.image
+        ? `<img src="${esc(sp.image)}" alt="${esc(sp.name)}" class="modal-img" onerror="this.style.display='none'">`
+        : '';
+
+    body.innerHTML = `
+        <div class="modal-header">
+            <span class="modal-order-tag">${icon} ${esc(sp.order)}</span>
+            <h2 class="modal-title" id="modalTitle">${esc(sp.name)}</h2>
+            ${sp.author  ? `<p class="modal-author">${esc(sp.author)}</p>`  : ''}
+            ${sp.common && sp.common !== sp.name ? `<p class="modal-common">${esc(sp.common)}</p>` : ''}
+        </div>
+        ${imgHtml}
+        <div class="modal-grid">
+            ${sp.family  ? `<div class="modal-field"><div class="modal-field-label">Famille</div><div class="modal-field-value"><em>${esc(sp.family)}</em></div></div>` : ''}
+            ${sp.order   ? `<div class="modal-field"><div class="modal-field-label">Ordre</div><div class="modal-field-value">${esc(sp.order)}</div></div>` : ''}
+            ${sp.size    ? `<div class="modal-field"><div class="modal-field-label">Taille</div><div class="modal-field-value">${esc(sp.size)}</div></div>` : ''}
+            ${sp.color   ? `<div class="modal-field"><div class="modal-field-label">Couleur</div><div class="modal-field-value">${esc(sp.color)}</div></div>` : ''}
+            ${sp.host    ? `<div class="modal-field" style="grid-column:1/-1"><div class="modal-field-label">Culture / Hôte</div><div class="modal-field-value">🌿 ${esc(sp.host)}</div></div>` : ''}
+        </div>
+        ${sp.description ? `<div class="modal-desc">${esc(sp.description)}</div>` : ''}
+        <div class="modal-footer">
+            <a href="${esc(sp.url)}" class="modal-link">📋 Voir la fiche complète →</a>
+            <a href="https://gd.eppo.int/search?q=${encodeURIComponent(sp.name)}" target="_blank" rel="noopener" class="modal-link">🔬 EPPO Global DB</a>
+            <a href="https://www.catalogueoflife.org/data/search?q=${encodeURIComponent(sp.name)}" target="_blank" rel="noopener" class="modal-link">📚 Catalogue of Life</a>
+        </div>
+    `;
+
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    $('modalClose')?.focus();
+}
+
+function closeSpeciesModal() {
+    const modal = $('speciesModal');
+    if (!modal) return;
+    modal.hidden = true;
+    document.body.style.overflow = '';
+}
+
+function initModal() {
+    const close   = $('modalClose');
+    const overlay = $('modalOverlay');
+    close?.addEventListener('click', closeSpeciesModal);
+    overlay?.addEventListener('click', closeSpeciesModal);
+    document.addEventListener('keydown', e => {
+        if (e.key==='Escape') closeSpeciesModal();
+    });
+}
+
+/* ================================================================
+   RECHERCHE GLOBALE (navbar)
+   ================================================================ */
 function initGlobalSearch() {
-    const input = document.getElementById('globalSearch');
-    const dropdown = document.getElementById('searchResults');
+    const input    = $('globalSearch');
+    const dropdown = $('searchDropdown');
     if (!input || !dropdown) return;
 
-    let debounceTimer;
+    // Vérifie que GLOBAL_SEARCH_INDEX est chargé
+    const getIndex = () => window.GLOBAL_SEARCH_INDEX || [];
+
+    let debounce;
+    let activeIdx = -1;
+    let currentResults = [];
 
     input.addEventListener('input', () => {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => performSearch(input.value.trim()), 150);
+        clearTimeout(debounce);
+        debounce = setTimeout(() => runSearch(input.value.trim()), 140);
     });
 
     input.addEventListener('focus', () => {
-        if (input.value.trim().length >= 2) dropdown.classList.add('active');
-    });
-
-    // Fermer au clic extérieur
-    document.addEventListener('click', (e) => {
-        if (!input.contains(e.target) && !dropdown.contains(e.target)) {
-            dropdown.classList.remove('active');
-        }
+        if (input.value.trim().length >= 2) dropdown.classList.add('open');
     });
 
     // Navigation clavier dans les résultats
-    input.addEventListener('keydown', (e) => {
-        const items = dropdown.querySelectorAll('.search-result-item');
-        if (e.key === 'ArrowDown' && items.length) { e.preventDefault(); items[0].focus(); }
-        if (e.key === 'Escape') { dropdown.classList.remove('active'); input.blur(); }
-    });
-}
-
-function performSearch(query) {
-    const dropdown = document.getElementById('searchResults');
-    if (query.length < 2) { dropdown.classList.remove('active'); return; }
-
-    const q = query.toLowerCase();
-    const results = SEARCH_INDEX.filter(item =>
-        item.name.toLowerCase().includes(q) ||
-        item.common.toLowerCase().includes(q) ||
-        item.order.toLowerCase().includes(q)
-    ).slice(0, 8);
-
-    dropdown.innerHTML = '';
-    if (results.length === 0) {
-        dropdown.innerHTML = '<div class="search-result-item" style="color:var(--color-text-muted)">Aucun résultat trouvé</div>';
-    } else {
-        results.forEach((item, i) => {
-            const el = document.createElement('div');
-            el.className = 'search-result-item';
-            el.setAttribute('role', 'option');
-            el.setAttribute('tabindex', '0');
-            el.innerHTML = `<strong>${item.name}</strong> <em>${item.common}</em>`;
-            el.addEventListener('click', () => { window.location.href = item.url; });
-            el.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') window.location.href = item.url;
-                if (e.key === 'ArrowDown') {
-                    const next = dropdown.querySelectorAll('.search-result-item')[i + 1];
-                    if (next) next.focus();
-                }
-                if (e.key === 'ArrowUp') {
-                    const prev = dropdown.querySelectorAll('.search-result-item')[i - 1];
-                    if (prev) prev.focus();
-                    else document.getElementById('globalSearch').focus();
-                }
-                if (e.key === 'Escape') { dropdown.classList.remove('active'); document.getElementById('globalSearch').focus(); }
-            });
-            dropdown.appendChild(el);
-        });
-    }
-    dropdown.classList.add('active');
-}
-
-/* ============================================================
-   Compteurs animés (stats-bar)
-   ============================================================ */
-function initCounters() {
-    const counters = document.querySelectorAll('.stat-number[data-target]');
-    if (!counters.length) return;
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (!entry.isIntersecting) return;
-            const el = entry.target;
-            const target = parseInt(el.dataset.target, 10);
-            const duration = 1200;
-            const step = 16;
-            const increment = target / (duration / step);
-            let current = 0;
-
-            const timer = setInterval(() => {
-                current = Math.min(current + increment, target);
-                el.textContent = Math.floor(current);
-                if (current >= target) { el.textContent = target; clearInterval(timer); }
-            }, step);
-
-            observer.unobserve(el);
-        });
-    }, { threshold: 0.5 });
-
-    counters.forEach(el => observer.observe(el));
-}
-
-/* ============================================================
-   Bouton Retour en haut
-   ============================================================ */
-function initBackToTop() {
-    const btn = document.getElementById('backToTop');
-    if (!btn) return;
-
-    window.addEventListener('scroll', () => {
-        btn.classList.toggle('visible', window.scrollY > 400);
-    }, { passive: true });
-
-    btn.addEventListener('click', () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-}
-
-/* ============================================================
-   Masquer/afficher la navbar au scroll
-   ============================================================ */
-function initNavbarScroll() {
-    const navbar = document.querySelector('.navbar');
-    if (!navbar) return;
-    let lastY = 0;
-    window.addEventListener('scroll', () => {
-        const y = window.scrollY;
-        // Ne masquer qu'après 100px de scroll et seulement si le menu mobile est fermé
-        if (y > 100 && y > lastY && !document.getElementById('navMenu')?.classList.contains('active')) {
-            navbar.style.transform = 'translateY(-100%)';
-        } else {
-            navbar.style.transform = '';
+    input.addEventListener('keydown', e => {
+        const items = dropdown.querySelectorAll('.sd-item');
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            activeIdx = Math.min(activeIdx + 1, items.length - 1);
+            items[activeIdx]?.focus();
         }
-        lastY = y;
-    }, { passive: true });
-    navbar.style.transition = 'transform 0.3s ease';
+        if (e.key === 'Escape') { dropdown.classList.remove('open'); input.blur(); }
+        if (e.key === 'Enter' && currentResults.length) {
+            openSpeciesModal(currentResults[0]);
+            dropdown.classList.remove('open');
+        }
+    });
+
+    document.addEventListener('click', e => {
+        if (!input.contains(e.target) && !dropdown.contains(e.target))
+            dropdown.classList.remove('open');
+    });
+
+    function runSearch(q) {
+        if (q.length < 2) { dropdown.classList.remove('open'); return; }
+        const ql = q.toLowerCase();
+        const idx = getIndex();
+        currentResults = idx.filter(sp =>
+            sp.name.toLowerCase().includes(ql) ||
+            (sp.common && sp.common.toLowerCase().includes(ql)) ||
+            (sp.family && sp.family.toLowerCase().includes(ql)) ||
+            (sp.order && sp.order.toLowerCase().includes(ql)) ||
+            (sp.host && sp.host.toLowerCase().includes(ql))
+        ).slice(0, 10);
+
+        renderDropdown(currentResults, q);
+    }
+
+    function renderDropdown(results, q) {
+        activeIdx = -1;
+        dropdown.innerHTML = '';
+        if (!results.length) {
+            dropdown.innerHTML = '<div class="sd-empty">Aucune espèce trouvée</div>';
+            dropdown.classList.add('open');
+            return;
+        }
+        results.forEach((sp, i) => {
+            const item = document.createElement('div');
+            item.className = 'sd-item';
+            item.setAttribute('role','option');
+            item.setAttribute('tabindex','0');
+
+            const icon = ORDER_ICONS[sp.order] || '🐛';
+            item.innerHTML = `
+                <span class="sd-order">${icon} ${esc(sp.order)}</span>
+                <strong>${highlight(sp.name, q)}</strong>
+                <small>${sp.common ? esc(sp.common)+' · ' : ''}${esc(sp.family)}</small>
+            `;
+
+            // Survol → tooltip non invasif (juste highlight)
+            item.addEventListener('click', () => {
+                dropdown.classList.remove('open');
+                input.value = sp.name;
+                openSpeciesModal(sp);
+            });
+            item.addEventListener('keydown', e => {
+                if (e.key==='Enter') { dropdown.classList.remove('open'); openSpeciesModal(sp); }
+                if (e.key==='ArrowDown') { e.preventDefault(); const next=dropdown.querySelectorAll('.sd-item')[i+1]; next?.focus(); }
+                if (e.key==='ArrowUp')   { e.preventDefault(); const prev=dropdown.querySelectorAll('.sd-item')[i-1]; if(prev)prev.focus(); else input.focus(); }
+                if (e.key==='Escape')    { dropdown.classList.remove('open'); input.focus(); }
+            });
+            dropdown.appendChild(item);
+        });
+        dropdown.classList.add('open');
+    }
+
+    function highlight(text, q) {
+        const re = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
+        return esc(text).replace(re, '<mark style="background:rgba(200,165,74,.3);color:var(--gold-l);border-radius:2px">$1</mark>');
+    }
 }
 
-/* ============================================================
-   Init global
-   ============================================================ */
+/* ================================================================
+   PARTICULES
+   ================================================================ */
+function initParticles() {
+    const wrap = document.querySelector('.particles-bg');
+    if (!wrap) return;
+    const n = window.innerWidth < 600 ? 18 : 38;
+    const frag = document.createDocumentFragment();
+    for (let i=0; i<n; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.left = `${Math.random()*100}%`;
+        p.style.top  = `${Math.random()*100}%`;
+        p.style.animationDelay    = `${(Math.random()*6).toFixed(2)}s`;
+        p.style.animationDuration = `${(Math.random()*4+5).toFixed(2)}s`;
+        frag.appendChild(p);
+    }
+    wrap.appendChild(frag);
+}
+
+/* ================================================================
+   INIT
+   ================================================================ */
 document.addEventListener('DOMContentLoaded', () => {
     initMobileNav();
+    initNavbarScroll();
     initSmoothScroll();
     initOrderCards();
-    initGlobalSearch();
     initCounters();
     initBackToTop();
-    initNavbarScroll();
+    initModal();
+    initGlobalSearch();
+    initParticles();
 });

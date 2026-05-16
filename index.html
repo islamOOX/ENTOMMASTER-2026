@@ -3,312 +3,229 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- SEO amélioré -->
     <title>ENTOMASTER – Référence Entomologique des Insectes Nuisibles aux Cultures</title>
-    <meta name="description" content="Base de données entomologique des insectes nuisibles aux cultures : coléoptères, lépidoptères, diptères, orthoptères, thysanoptères, hémiptères et hyménoptères. Classification scientifique avec photos HD et modèles 3D.">
-    <meta name="keywords" content="entomologie, insectes nuisibles, cultures, ravageurs, coléoptères, lépidoptères, diptères, classification entomologique, phytopathologie, Maroc, Maghreb, méditerranéen">
+    <meta name="description" content="Base de données entomologique : 129 espèces d'insectes nuisibles aux cultures, classées par ordre taxonomique et par culture. Coléoptères, Lépidoptères, Diptères, Orthoptères...">
+    <meta name="keywords" content="entomologie, insectes nuisibles, cultures, ravageurs, coléoptères, lépidoptères, diptères, Maroc, Maghreb">
     <meta name="author" content="ENTOMASTER">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="index.html">
-
-    <!-- Open Graph pour partage réseaux sociaux -->
-    <meta property="og:title" content="ENTOMASTER – Référence Entomologique Agricole">
-    <meta property="og:description" content="Base de données scientifique des insectes nuisibles aux cultures – Classification par ordre taxonomique et par culture.">
+    <meta property="og:title" content="ENTOMASTER – Référence Entomologique">
+    <meta property="og:description" content="129 espèces d'insectes nuisibles classées par ordre et par culture.">
     <meta property="og:type" content="website">
-    <meta property="og:locale" content="fr_FR">
-
-    <!-- Données structurées Schema.org -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "ENTOMASTER",
-      "description": "Référence entomologique des insectes nuisibles aux cultures agricoles",
-      "inLanguage": "fr",
-      "about": {
-        "@type": "Thing",
-        "name": "Entomologie agricole"
-      },
-      "educationalUse": "Référence scientifique"
-    }
-    </script>
-
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"ENTOMASTER","description":"Référence entomologique agricole","inLanguage":"fr"}</script>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <script src="search_index.js"></script>
 </head>
 <body>
 
-    <!-- Bandeau d'information scientifique -->
-    <div class="top-banner" id="topBanner">
-        <span>🔬 Nomenclature conforme au <strong>Catalogue of Life 2024</strong> et à la base <strong>EPPO Global Database</strong></span>
-        <button class="banner-close" aria-label="Fermer le bandeau" onclick="document.getElementById('topBanner').style.display='none'">✕</button>
-    </div>
+<div class="top-banner" id="topBanner">
+    🔬 Nomenclature conforme au <strong>Catalogue of Life 2024</strong> &amp; <strong>EPPO Global Database</strong> — 129 espèces indexées
+    <button class="banner-close" onclick="document.getElementById('topBanner').style.display='none'" aria-label="Fermer">✕</button>
+</div>
 
-    <header>
-        <nav class="navbar" role="navigation" aria-label="Navigation principale">
-            <div class="nav-brand">
-                <a href="index.html" aria-label="ENTOMASTER – Accueil">
-                    <h1>ENTOMASTER</h1>
-                    <span class="nav-tagline">Entomologie Agricole</span>
-                </a>
+<header>
+    <nav class="navbar" role="navigation" aria-label="Navigation principale">
+        <div class="nav-brand">
+            <a href="index.html">
+                <span class="brand-name">ENTOMASTER</span>
+                <span class="brand-sub">Entomologie Agricole</span>
+            </a>
+        </div>
+
+        <div class="nav-search" role="search">
+            <div class="search-wrapper">
+                <svg class="search-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="9" r="6"/><path d="m15 15 3 3"/></svg>
+                <input type="search" id="globalSearch" placeholder="Rechercher parmi 129 espèces…" autocomplete="off" spellcheck="false">
             </div>
+            <div id="searchDropdown" class="search-dropdown" role="listbox" aria-live="polite"></div>
+        </div>
 
-            <!-- Recherche globale -->
-            <div class="nav-search" role="search" aria-label="Recherche d'espèces">
-                <input type="search" id="globalSearch" placeholder="Rechercher une espèce…"
-                    autocomplete="off" aria-label="Rechercher une espèce ou une famille">
-                <div id="searchResults" class="search-dropdown" role="listbox" aria-live="polite" aria-label="Résultats de recherche"></div>
-            </div>
-
-            <ul class="nav-menu" id="navMenu" role="menubar">
-                <li role="none"><a href="index.html" role="menuitem" aria-current="page">Accueil</a></li>
-                <li role="none"><a href="classification_par_culture.html" role="menuitem">Par Culture</a></li>
-                <li class="nav-dropdown" role="none">
-                    <a href="#" role="menuitem" aria-haspopup="true" aria-expanded="false" id="orderMenuBtn">Par Ordre ▾</a>
-                    <ul class="dropdown-menu" role="menu" aria-labelledby="orderMenuBtn">
-                        <li><a href="coleopteres/index.html" role="menuitem">Coléoptères</a></li>
-                        <li><a href="lepidopteres/index.html" role="menuitem">Lépidoptères</a></li>
-                        <li><a href="dipteres/index.html" role="menuitem">Diptères</a></li>
-                        <li><a href="orthopteres/index.html" role="menuitem">Orthoptères</a></li>
-                        <li><a href="thysanopteres/index.html" role="menuitem">Thysanoptères</a></li>
-                        <li><a href="hemipteres/index.html" role="menuitem">Hémiptères</a></li>
-                        <li><a href="hymenopteres/index.html" role="menuitem">Hyménoptères</a></li>
-                    </ul>
-                </li>
-                <li role="none"><a href="#about" role="menuitem">À propos</a></li>
-                <li role="none"><a href="#references" role="menuitem">Références</a></li>
-            </ul>
-
-            <button class="hamburger" id="hamburger" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="navMenu">
-                <span></span><span></span><span></span>
-            </button>
-        </nav>
-    </header>
-
-    <!-- Lien d'évitement pour l'accessibilité -->
-    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
-
-    <main id="main-content">
-
-        <!-- Hero Section -->
-        <section id="home" class="hero-section" aria-labelledby="hero-title">
-            <div class="hero-content">
-                <p class="hero-eyebrow">Base de données entomologique scientifique</p>
-                <h1 class="hero-title" id="hero-title">Les 7 Ordres d'Insectes Nuisibles aux Cultures</h1>
-                <p class="hero-description">
-                    Classification taxonomique rigoureuse avec nomenclature ITIS & Catalogue of Life,
-                    photographies haute résolution et modèles 3D interactifs.
-                </p>
-
-                <!-- Compteurs animés -->
-                <div class="stats-bar" role="list" aria-label="Chiffres clés du site">
-                    <div class="stat" role="listitem">
-                        <span class="stat-number" data-target="7">0</span>
-                        <span class="stat-label">Ordres</span>
-                    </div>
-                    <div class="stat" role="listitem">
-                        <span class="stat-number" data-target="120">0</span>
-                        <span class="stat-label">Espèces</span>
-                    </div>
-                    <div class="stat" role="listitem">
-                        <span class="stat-number" data-target="30">0</span>
-                        <span class="stat-label">Familles</span>
-                    </div>
-                    <div class="stat" role="listitem">
-                        <span class="stat-number" data-target="12">0</span>
-                        <span class="stat-label">Cultures couvertes</span>
-                    </div>
-                </div>
-
-                <!-- Grille des 7 ordres -->
-                <div class="orders-grid" role="list" aria-label="Les 7 ordres entomologiques">
-
-                    <article class="order-card" data-order="coleopteres" role="listitem"
-                        tabindex="0" aria-label="Explorer les Coléoptères">
-                        <div class="order-icon"><img src="icons/coleopteres_gold.png" alt="" aria-hidden="true"></div>
-                        <h3>Coléoptères</h3>
-                        <p class="order-meta">Curculionidae · Chrysomelidae · Buprestidae</p>
-                        <span class="order-count">~45 espèces</span>
-                    </article>
-
-                    <article class="order-card" data-order="hemipteres" role="listitem"
-                        tabindex="0" aria-label="Explorer les Hémiptères">
-                        <div class="order-icon"><img src="icons/hemipteres_gold.png" alt="" aria-hidden="true"></div>
-                        <h3>Hémiptères</h3>
-                        <p class="order-meta">Pucerons · Aleurodes · Cochenilles</p>
-                        <span class="order-count">~20 espèces</span>
-                    </article>
-
-                    <article class="order-card" data-order="lepidopteres" role="listitem"
-                        tabindex="0" aria-label="Explorer les Lépidoptères">
-                        <div class="order-icon"><img src="icons/lepidopteres_gold.png" alt="" aria-hidden="true"></div>
-                        <h3>Lépidoptères</h3>
-                        <p class="order-meta">Noctuelles · Tordeuses · Teignes</p>
-                        <span class="order-count">~25 espèces</span>
-                    </article>
-
-                    <article class="order-card" data-order="dipteres" role="listitem"
-                        tabindex="0" aria-label="Explorer les Diptères">
-                        <div class="order-icon"><img src="icons/dipteres_gold.png" alt="" aria-hidden="true"></div>
-                        <h3>Diptères</h3>
-                        <p class="order-meta">Tephritidae · Cecidomyiidae · Agromyzidae</p>
-                        <span class="order-count">~15 espèces</span>
-                    </article>
-
-                    <article class="order-card" data-order="thysanopteres" role="listitem"
-                        tabindex="0" aria-label="Explorer les Thysanoptères">
-                        <div class="order-icon"><img src="icons/thysanopteres_gold.png" alt="" aria-hidden="true"></div>
-                        <h3>Thysanoptères</h3>
-                        <p class="order-meta">Thripidae · Phlaeothripidae</p>
-                        <span class="order-count">~5 espèces</span>
-                    </article>
-
-                    <article class="order-card" data-order="hymenopteres" role="listitem"
-                        tabindex="0" aria-label="Explorer les Hyménoptères">
-                        <div class="order-icon"><img src="icons/hymenopteres_gold.png" alt="" aria-hidden="true"></div>
-                        <h3>Hyménoptères</h3>
-                        <p class="order-meta">Tenthrèdes · Cynips · Apidae nuisibles</p>
-                        <span class="order-count">~8 espèces</span>
-                    </article>
-
-                    <article class="order-card" data-order="orthopteres" role="listitem"
-                        tabindex="0" aria-label="Explorer les Orthoptères">
-                        <div class="order-icon"><img src="icons/orthopteres_gold.png" alt="" aria-hidden="true"></div>
-                        <h3>Orthoptères</h3>
-                        <p class="order-meta">Acrididae · Tettigoniidae · Gryllidae</p>
-                        <span class="order-count">~7 espèces</span>
-                    </article>
-                </div>
-
-                <!-- CTA Classification par culture -->
-                <div class="classification-link">
-                    <h2>Approche pratique par type de culture</h2>
-                    <p>Maraîchage, arboriculture, grandes cultures, cultures ornementales — identifiez directement les ravageurs de votre culture.</p>
-                    <a href="classification_par_culture.html" class="cta-button">
-                        🌾 Voir la classification par culture
-                    </a>
-                </div>
-            </div>
-        </section>
-
-        <!-- Section À propos -->
-        <section id="about" class="about-section full-width" aria-labelledby="about-title">
-            <div class="section-inner">
-                <h2 id="about-title">Mission Scientifique</h2>
-                <p class="section-lead">
-                    ENTOMASTER est une ressource entomologique éducative fondée sur les grandes références scientifiques de la discipline,
-                    avec un focus particulier sur le contexte méditerranéen (Maroc, Maghreb, OEPP).
-                </p>
-                <div class="approaches">
-                    <div class="approach">
-                        <div class="approach-icon" aria-hidden="true">🔬</div>
-                        <h3>Classification Taxonomique</h3>
-                        <p>Nomenclature complète : Ordre → Famille → Genre → Espèce (Auteur, année), conforme au Catalogue of Life.</p>
-                        <a href="#home" class="approach-link">Explorer par ordre</a>
-                    </div>
-                    <div class="approach">
-                        <div class="approach-icon" aria-hidden="true">🌾</div>
-                        <h3>Approche Agronomique</h3>
-                        <p>Classification par culture affectée pour une utilisation rapide sur le terrain par les agriculteurs et techniciens.</p>
-                        <a href="classification_par_culture.html" class="approach-link">Explorer par culture</a>
-                    </div>
-                    <div class="approach">
-                        <div class="approach-icon" aria-hidden="true">🗺️</div>
-                        <h3>Contexte Méditerranéen</h3>
-                        <p>Données adaptées aux ravageurs présents en zone méditerranéenne, avec références aux publications INRA et OEPP.</p>
-                        <a href="#references" class="approach-link">Voir les références</a>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Section Références scientifiques — NOUVEAU -->
-        <section id="references" class="references-section" aria-labelledby="ref-title">
-            <div class="section-inner">
-                <h2 id="ref-title">📚 Références Scientifiques</h2>
-                <p class="section-lead">Le contenu d'ENTOMASTER repose sur les publications académiques et bases de données officielles suivantes :</p>
-
-                <ul class="references-list">
-                    <li>
-                        <strong>Bonnemaison, L.</strong> (1962). <em>Les ennemis animaux des plantes cultivées et des forêts</em>.
-                        SEP – La Maison Rustique, Paris.
-                    </li>
-                    <li>
-                        <strong>Delvare, G. & Aberlenc, H.-P.</strong> (1989). <em>Les insectes d'Afrique et d'Amérique tropicale</em>.
-                        CIRAD, Montpellier.
-                    </li>
-                    <li>
-                        <strong>OEPP/EPPO</strong> (2024). <em>EPPO Global Database — pest information sheets</em>.
-                        <a href="https://gd.eppo.int" target="_blank" rel="noopener noreferrer">gd.eppo.int</a>
-                    </li>
-                    <li>
-                        <strong>Catalogue of Life</strong> (2024). <em>Catalogue of Life Checklist</em>.
-                        <a href="https://www.catalogueoflife.org" target="_blank" rel="noopener noreferrer">catalogueoflife.org</a>
-                    </li>
-                    <li>
-                        <strong>Entomological Society of America</strong> (2024). <em>Common Names of Insects Database</em>.
-                        <a href="https://www.entsoc.org/publications/common-names" target="_blank" rel="noopener noreferrer">entsoc.org</a>
-                    </li>
-                    <li>
-                        <strong>Vayssière, P.</strong> (1919–1920). Les insectes nuisibles aux cultures du Maroc (notes 1 & 2).
-                        <em>Bulletin de la Société entomologique de France</em>, vol. 24–25.
-                        <a href="https://doi.org/10.3406/bsef.1919.26513" target="_blank" rel="noopener noreferrer">DOI: 10.3406/bsef</a>
-                    </li>
-                    <li>
-                        <strong>INRA Maroc</strong> (2024). <em>Les ravageurs des cultures au Maroc</em>.
-                        <a href="https://www.inra.org.ma" target="_blank" rel="noopener noreferrer">inra.org.ma</a>
-                    </li>
+        <ul class="nav-menu" id="navMenu" role="menubar">
+            <li><a href="index.html" aria-current="page">Accueil</a></li>
+            <li class="has-dropdown">
+                <a href="#" id="orderDropBtn">Par Ordre ▾</a>
+                <ul class="dropdown-menu" role="menu">
+                    <li><a href="coleopteres/index.html">🪲 Coléoptères</a></li>
+                    <li><a href="lepidopteres/index.html">🦋 Lépidoptères</a></li>
+                    <li><a href="dipteres/index.html">🪰 Diptères</a></li>
+                    <li><a href="orthopteres/index.html">🦗 Orthoptères</a></li>
+                    <li><a href="thysanopteres/index.html">🔬 Thysanoptères</a></li>
+                    <li><a href="hemipteres/index.html">🐛 Hémiptères</a></li>
+                    <li><a href="hymenopteres/index.html">🐝 Hyménoptères</a></li>
                 </ul>
+            </li>
+            <li><a href="classification_par_culture.html">Par Culture</a></li>
+            <li><a href="#references">Références</a></li>
+        </ul>
 
-                <p class="ref-note">
-                    ⚠️ Pour toute utilisation académique ou professionnelle, nous recommandons de consulter
-                    directement les sources primaires listées ci-dessus. Ce site a une vocation éducative et non commerciale.
-                </p>
+        <button class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false">
+            <span></span><span></span><span></span>
+        </button>
+    </nav>
+</header>
+
+<a href="#main" class="skip-link">Aller au contenu</a>
+
+<main id="main">
+    <section class="hero-section" aria-labelledby="hero-title">
+        <div class="hero-bg"></div>
+        <div class="hero-content">
+            <span class="hero-eyebrow">Base de données entomologique scientifique</span>
+            <h1 class="hero-title" id="hero-title">Les 7 Ordres d'Insectes<br>Nuisibles aux Cultures</h1>
+            <p class="hero-desc">Classification taxonomique rigoureuse · Photos haute résolution · Modèles 3D interactifs · 129 espèces documentées</p>
+
+            <div class="stats-row" aria-label="Statistiques">
+                <div class="stat"><span class="stat-n" data-to="7">0</span><span class="stat-l">Ordres</span></div>
+                <div class="stat"><span class="stat-n" data-to="129">0</span><span class="stat-l">Espèces</span></div>
+                <div class="stat"><span class="stat-n" data-to="30">0</span><span class="stat-l">Familles</span></div>
+                <div class="stat"><span class="stat-n" data-to="14">0</span><span class="stat-l">Cultures</span></div>
             </div>
-        </section>
 
-    </main>
-
-    <!-- Footer enrichi -->
-    <footer id="contact" role="contentinfo">
-        <div class="footer-content">
-            <div class="footer-cols">
-                <div class="footer-col">
-                    <h4>ENTOMASTER</h4>
-                    <p>Base de données entomologique éducative dédiée aux insectes nuisibles aux cultures agricoles dans la région méditerranéenne.</p>
-                </div>
-                <div class="footer-col">
-                    <h4>Navigation</h4>
-                    <ul>
-                        <li><a href="index.html">Accueil</a></li>
-                        <li><a href="classification_par_culture.html">Classification par culture</a></li>
-                        <li><a href="coleopteres/index.html">Coléoptères</a></li>
-                        <li><a href="lepidopteres/index.html">Lépidoptères</a></li>
-                        <li><a href="dipteres/index.html">Diptères</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h4>Ressources externes</h4>
-                    <ul>
-                        <li><a href="https://gd.eppo.int" target="_blank" rel="noopener noreferrer">EPPO Global Database</a></li>
-                        <li><a href="https://www.catalogueoflife.org" target="_blank" rel="noopener noreferrer">Catalogue of Life</a></li>
-                        <li><a href="https://www.entsoc.org" target="_blank" rel="noopener noreferrer">Entomological Society of America</a></li>
-                        <li><a href="https://www.inra.org.ma" target="_blank" rel="noopener noreferrer">INRA Maroc</a></li>
-                    </ul>
-                </div>
+            <div class="orders-grid" role="list">
+                <article class="order-card" data-href="coleopteres/index.html" role="listitem" tabindex="0">
+                    <div class="card-icon"><img src="icons/coleopteres_gold.png" alt="" aria-hidden="true"></div>
+                    <h3>Coléoptères</h3>
+                    <p class="card-families">Curculionidae · Chrysomelidae · Buprestidae</p>
+                    <span class="card-badge">45 espèces</span>
+                </article>
+                <article class="order-card" data-href="hemipteres/index.html" role="listitem" tabindex="0">
+                    <div class="card-icon"><img src="icons/hemipteres_gold.png" alt="" aria-hidden="true"></div>
+                    <h3>Hémiptères</h3>
+                    <p class="card-families">Pucerons · Aleurodes · Cochenilles</p>
+                    <span class="card-badge">~20 espèces</span>
+                </article>
+                <article class="order-card" data-href="lepidopteres/index.html" role="listitem" tabindex="0">
+                    <div class="card-icon"><img src="icons/lepidopteres_gold.png" alt="" aria-hidden="true"></div>
+                    <h3>Lépidoptères</h3>
+                    <p class="card-families">Noctuelles · Tordeuses · Teignes</p>
+                    <span class="card-badge">19 espèces</span>
+                </article>
+                <article class="order-card" data-href="dipteres/index.html" role="listitem" tabindex="0">
+                    <div class="card-icon"><img src="icons/dipteres_gold.png" alt="" aria-hidden="true"></div>
+                    <h3>Diptères</h3>
+                    <p class="card-families">Tephritidae · Cecidomyiidae · Agromyzidae</p>
+                    <span class="card-badge">14 espèces</span>
+                </article>
+                <article class="order-card" data-href="thysanopteres/index.html" role="listitem" tabindex="0">
+                    <div class="card-icon"><img src="icons/thysanopteres_gold.png" alt="" aria-hidden="true"></div>
+                    <h3>Thysanoptères</h3>
+                    <p class="card-families">Thripidae · Phlaeothripidae</p>
+                    <span class="card-badge">5 espèces</span>
+                </article>
+                <article class="order-card" data-href="hymenopteres/index.html" role="listitem" tabindex="0">
+                    <div class="card-icon"><img src="icons/hymenopteres_gold.png" alt="" aria-hidden="true"></div>
+                    <h3>Hyménoptères</h3>
+                    <p class="card-families">Tenthrèdes · Cynips · Formicidae</p>
+                    <span class="card-badge">~8 espèces</span>
+                </article>
+                <article class="order-card" data-href="orthopteres/index.html" role="listitem" tabindex="0">
+                    <div class="card-icon"><img src="icons/orthopteres_gold.png" alt="" aria-hidden="true"></div>
+                    <h3>Orthoptères</h3>
+                    <p class="card-families">Acrididae · Tettigoniidae · Gryllidae</p>
+                    <span class="card-badge">7 espèces</span>
+                </article>
             </div>
-            <div class="footer-bottom">
-                <p>&copy; 2025 ENTOMASTER. Tous droits réservés. | Site éducatif non commercial.</p>
-                <p>Nomenclature conforme au <a href="https://www.catalogueoflife.org" target="_blank" rel="noopener noreferrer">Catalogue of Life 2024</a> &amp; <a href="https://gd.eppo.int" target="_blank" rel="noopener noreferrer">EPPO Global Database</a>.</p>
+
+            <div class="culture-cta">
+                <div class="cta-text">
+                    <h2>Approche par type de culture</h2>
+                    <p>Maraîchage, arboriculture, grandes cultures — identifiez les ravageurs de votre culture directement.</p>
+                </div>
+                <a href="classification_par_culture.html" class="cta-btn">🌾 Classification par culture →</a>
             </div>
         </div>
-    </footer>
+    </section>
 
-    <!-- Bouton retour en haut -->
-    <button id="backToTop" aria-label="Revenir en haut de page" title="Haut de page">▲</button>
+    <section id="about" class="info-section">
+        <div class="section-wrap">
+            <h2 class="section-title">Mission Scientifique</h2>
+            <p class="section-lead">ENTOMASTER est une ressource entomologique éducative fondée sur les grandes références scientifiques, avec un focus sur le contexte méditerranéen (Maroc, Maghreb, OEPP).</p>
+            <div class="approaches">
+                <div class="approach-card">
+                    <span class="appr-icon">🔬</span>
+                    <h3>Classification Taxonomique</h3>
+                    <p>Nomenclature complète Ordre → Famille → Genre → Espèce, conforme au Catalogue of Life 2024.</p>
+                    <a href="#main" class="appr-link">Explorer par ordre →</a>
+                </div>
+                <div class="approach-card">
+                    <span class="appr-icon">🌾</span>
+                    <h3>Approche Agronomique</h3>
+                    <p>Classification par culture hôte pour identification rapide sur le terrain par les agronomes.</p>
+                    <a href="classification_par_culture.html" class="appr-link">Explorer par culture →</a>
+                </div>
+                <div class="approach-card">
+                    <span class="appr-icon">🗺️</span>
+                    <h3>Contexte Méditerranéen</h3>
+                    <p>Données adaptées aux ravageurs présents en zone méditerranéenne avec références INRA et OEPP.</p>
+                    <a href="#references" class="appr-link">Voir les références →</a>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    <script src="script.js"></script>
+    <section id="references" class="refs-section">
+        <div class="section-wrap">
+            <h2 class="section-title">📚 Références Scientifiques</h2>
+            <p class="section-lead">Le contenu d'ENTOMASTER repose sur les publications académiques et bases de données suivantes :</p>
+            <ul class="refs-list">
+                <li><strong>Bonnemaison, L.</strong> (1962). <em>Les ennemis animaux des plantes cultivées et des forêts</em>. SEP – La Maison Rustique, Paris.</li>
+                <li><strong>Delvare, G. &amp; Aberlenc, H.-P.</strong> (1989). <em>Les insectes d'Afrique et d'Amérique tropicale</em>. CIRAD, Montpellier.</li>
+                <li><strong>OEPP/EPPO</strong> (2024). <em>EPPO Global Database</em>. <a href="https://gd.eppo.int" target="_blank" rel="noopener">gd.eppo.int</a></li>
+                <li><strong>Catalogue of Life</strong> (2024). <em>COL Checklist</em>. <a href="https://www.catalogueoflife.org" target="_blank" rel="noopener">catalogueoflife.org</a></li>
+                <li><strong>Entomological Society of America</strong> (2024). <em>Common Names of Insects Database</em>. <a href="https://www.entsoc.org" target="_blank" rel="noopener">entsoc.org</a></li>
+                <li><strong>Vayssière, P.</strong> (1919–1920). Les insectes nuisibles aux cultures du Maroc. <em>Bull. Soc. ent. France</em>. <a href="https://doi.org/10.3406/bsef.1919.26513" target="_blank" rel="noopener">DOI</a></li>
+                <li><strong>INRA Maroc</strong> (2024). <em>Ravageurs des cultures</em>. <a href="https://www.inra.org.ma" target="_blank" rel="noopener">inra.org.ma</a></li>
+            </ul>
+            <p class="ref-warning">⚠️ Site éducatif non commercial. Pour usage académique, consultez directement les sources primaires.</p>
+        </div>
+    </section>
+</main>
+
+<!-- Modal de détail espèce (recherche globale) -->
+<div id="speciesModal" class="species-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" hidden>
+    <div class="modal-overlay" id="modalOverlay"></div>
+    <div class="modal-panel">
+        <button class="modal-close" id="modalClose" aria-label="Fermer">✕</button>
+        <div class="modal-body" id="modalBody"></div>
+    </div>
+</div>
+
+<footer id="contact" role="contentinfo">
+    <div class="footer-inner">
+        <div class="footer-cols">
+            <div class="fc">
+                <h4>ENTOMASTER</h4>
+                <p>Base de données entomologique éducative — insectes nuisibles aux cultures agricoles méditerranéennes.</p>
+            </div>
+            <div class="fc">
+                <h4>Navigation</h4>
+                <ul>
+                    <li><a href="index.html">Accueil</a></li>
+                    <li><a href="classification_par_culture.html">Par culture</a></li>
+                    <li><a href="coleopteres/index.html">Coléoptères</a></li>
+                    <li><a href="lepidopteres/index.html">Lépidoptères</a></li>
+                    <li><a href="dipteres/index.html">Diptères</a></li>
+                </ul>
+            </div>
+            <div class="fc">
+                <h4>Ressources</h4>
+                <ul>
+                    <li><a href="https://gd.eppo.int" target="_blank" rel="noopener">EPPO Global Database</a></li>
+                    <li><a href="https://www.catalogueoflife.org" target="_blank" rel="noopener">Catalogue of Life</a></li>
+                    <li><a href="https://www.entsoc.org" target="_blank" rel="noopener">ESA Common Names</a></li>
+                    <li><a href="https://www.inra.org.ma" target="_blank" rel="noopener">INRA Maroc</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 ENTOMASTER — Site éducatif non commercial | Nomenclature : <a href="https://www.catalogueoflife.org" target="_blank" rel="noopener">Catalogue of Life 2024</a></p>
+        </div>
+    </div>
+</footer>
+
+<button id="backToTop" aria-label="Haut de page">▲</button>
+
+<script src="script.js"></script>
 </body>
 </html>

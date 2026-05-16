@@ -1,52 +1,22 @@
 /**
- * ENTOMASTER – Coléoptères – Script (version améliorée)
- * Fonctionnalités :
- * - Rendu dynamique des espèces par famille
- * - Filtrage par nom, famille, plante hôte (temps réel)
+ * ENTOMASTER – Coléoptères – Script v2
+ * - Rendu des 45 espèces par famille
  * - Tooltip enrichi au survol
- * - Particules d'arrière-plan
+ * - Modal détaillé au clic
+ * - Filtre temps réel (nom, famille, hôte)
+ * - Particules de fond
  * - Retour en haut
  */
-
 'use strict';
 
-/* ============================================================
-   Initialisation des particules
-   ============================================================ */
-function initializeParticles() {
-    const container = document.getElementById('particles');
-    if (!container) return;
-    const count = window.innerWidth < 600 ? 20 : 40;
-    const frag = document.createDocumentFragment();
-    for (let i = 0; i < count; i++) {
-        const p = document.createElement('div');
-        p.className = 'particle';
-        p.style.left = `${Math.random() * 100}%`;
-        p.style.top = `${Math.random() * 100}%`;
-        p.style.animationDelay = `${(Math.random() * 6).toFixed(2)}s`;
-        p.style.animationDuration = `${(Math.random() * 4 + 5).toFixed(2)}s`;
-        frag.appendChild(p);
-    }
-    container.appendChild(frag);
-}
-
-/* ============================================================
-   Rendu des espèces
-   ============================================================ */
-const FAMILY_ORDER = [
-    'buprestidae', 'curculionidae', 'scolytidae', 'chrysomelidae',
-    'cerambycidae', 'meloidae', 'coccinelidae', 'bostrychidae',
-    'elateridae', 'scarabaeidae', 'carabidae', 'dryophthoridae', 'nitidulidae'
-];
-
-const FAMILY_NAMES = {
+const FAMILY_LABELS = {
     buprestidae:   'Buprestidae',
     curculionidae: 'Curculionidae',
-    scolytidae:    'Scolytidae (Scolytes)',
+    scolytidae:    'Scolytidae',
     chrysomelidae: 'Chrysomelidae',
     cerambycidae:  'Cerambycidae',
     meloidae:      'Meloidae',
-    coccinelidae:  'Coccinelidae',
+    coccinellidae: 'Coccinellidae',
     bostrychidae:  'Bostrychidae',
     elateridae:    'Elateridae',
     scarabaeidae:  'Scarabaeidae',
@@ -55,8 +25,13 @@ const FAMILY_NAMES = {
     nitidulidae:   'Nitidulidae',
 };
 
-let allCards = [];  // pour le filtrage
+const FAMILY_ORDER = Object.keys(FAMILY_LABELS);
 
+let allCards = [];
+
+/* ============================================================
+   RENDU
+   ============================================================ */
 function renderSpecies() {
     const container = document.getElementById('species-container');
     if (!container || !window.speciesData) return;
@@ -64,30 +39,28 @@ function renderSpecies() {
     const frag = document.createDocumentFragment();
     allCards = [];
 
-    FAMILY_ORDER.forEach(familyKey => {
-        const species = window.speciesData[familyKey];
-        if (!species || !species.length) return;
+    FAMILY_ORDER.forEach(fKey => {
+        const spp = window.speciesData[fKey];
+        if (!spp || !spp.length) return;
 
         const section = document.createElement('section');
         section.className = 'family-section';
-        section.dataset.family = familyKey;
+        section.dataset.family = fKey;
 
-        const header = document.createElement('div');
-        header.className = 'family-header';
-        header.innerHTML = `
-            <h2 class="family-title">Famille : <em>${FAMILY_NAMES[familyKey] || familyKey}</em></h2>
-            <span class="family-count">${species.length} espèce${species.length > 1 ? 's' : ''}</span>
-        `;
-        section.appendChild(header);
+        const hdr = document.createElement('div');
+        hdr.className = 'family-hdr';
+        hdr.innerHTML = `<h2>Famille : <em>${FAMILY_LABELS[fKey]}</em></h2>
+                         <span class="family-count">${spp.length} espèce${spp.length>1?'s':''}</span>`;
+        section.appendChild(hdr);
 
         const grid = document.createElement('div');
-        grid.className = 'species-grid';
-        grid.setAttribute('role', 'list');
+        grid.className = 'sp-grid';
+        grid.setAttribute('role','list');
 
-        species.forEach(sp => {
-            const card = createSpeciesCard(sp, familyKey);
+        spp.forEach(sp => {
+            const card = createCard(sp, fKey);
             grid.appendChild(card);
-            allCards.push({ el: card, sp, familyKey });
+            allCards.push({ el: card, sp, fKey });
         });
 
         section.appendChild(grid);
@@ -95,252 +68,233 @@ function renderSpecies() {
     });
 
     container.appendChild(frag);
-    updateFilterCount();
+    updateCount();
 }
 
-function createSpeciesCard(sp, familyKey) {
+function createCard(sp, fKey) {
     const card = document.createElement('article');
-    card.className = 'species-card';
-    card.dataset.family = familyKey;
-    card.dataset.name = (sp.scientificName || '').toLowerCase();
-    card.dataset.common = (sp.commonName || '').toLowerCase();
-    card.dataset.host = (sp.host || '').toLowerCase();
-    card.setAttribute('role', 'listitem');
-    card.setAttribute('tabindex', '0');
-    card.setAttribute('aria-label', `${sp.scientificName}${sp.commonName ? ' – ' + sp.commonName : ''}`);
+    card.className = 'sp-card';
+    card.setAttribute('role','listitem');
+    card.setAttribute('tabindex','0');
+    card.setAttribute('aria-label', `${sp.scientificName} – cliquer pour détails`);
+    card.dataset.name   = (sp.scientificName||'').toLowerCase();
+    card.dataset.common = (sp.commonName||'').toLowerCase();
+    card.dataset.host   = (sp.host||'').toLowerCase();
+    card.dataset.family = fKey;
 
-    const imgSrc = sp.image || 'placeholder.jpg';
-    const commonNameHTML = sp.commonName
-        ? `<p class="species-common-name">${escHtml(sp.commonName)}</p>`
-        : '';
-    const hostHTML = sp.host
-        ? `<p class="species-host">🌿 ${escHtml(sp.host)}</p>`
-        : '';
-    const sizeHTML = sp.size
-        ? `<p class="species-size">📏 ${escHtml(sp.size)}</p>`
-        : '';
-    const authorHTML = sp.author
-        ? `<small style="color:var(--color-text-muted);font-size:0.7rem;">${escHtml(sp.author)}</small>`
-        : '';
+    const img = sp.image || '../images/placeholder.jpg';
 
     card.innerHTML = `
-        <div class="species-image" data-family="${escHtml(FAMILY_NAMES[familyKey] || familyKey)}">
-            <img src="${escHtml(imgSrc)}"
-                 alt="${escHtml(sp.scientificName)}"
-                 loading="lazy"
-                 width="300" height="225"
+        <div class="sp-img">
+            <img src="${e(img)}" alt="${e(sp.scientificName)}" loading="lazy" width="300" height="225"
                  onerror="this.src='../images/placeholder.jpg'">
+            <span class="sp-img-badge">${e(FAMILY_LABELS[fKey]||fKey)}</span>
         </div>
-        <div class="species-info">
-            <h3 class="species-info h4" style="font-family:var(--font-display);font-style:italic;font-size:0.95rem;color:var(--color-text);font-weight:700;">
-                ${escHtml(sp.scientificName)}
-            </h3>
-            ${authorHTML}
-            ${commonNameHTML}
-            <p class="species-family" style="font-size:0.75rem;color:var(--color-text-muted);font-style:italic;">
-                ${escHtml(FAMILY_NAMES[familyKey] || familyKey)}
-            </p>
-            ${hostHTML}
-            ${sizeHTML}
+        <div class="sp-body">
+            <p class="sp-name">${e(sp.scientificName)}</p>
+            ${sp.author     ? `<p class="sp-author">${e(sp.author)}</p>` : ''}
+            ${sp.commonName ? `<p class="sp-common">${e(sp.commonName)}</p>` : ''}
+            <p class="sp-family">${e(FAMILY_LABELS[fKey]||fKey)}</p>
+            ${sp.host ? `<p class="sp-host">🌿 ${e(sp.host)}</p>` : ''}
+            ${sp.size ? `<p class="sp-size">📏 ${e(sp.size)}</p>` : ''}
         </div>
-        <button class="species-btn" aria-expanded="false">Détails morphologiques ▸</button>
+        <span class="sp-more">Voir la fiche →</span>
     `;
 
-    // Tooltip au survol
-    card.addEventListener('mouseenter', (e) => showTooltip(e, sp));
-    card.addEventListener('mousemove', positionTooltip);
+    /* Tooltip */
+    card.addEventListener('mouseenter', ev => showTooltip(ev, sp, fKey));
+    card.addEventListener('mousemove',  posTooltip);
     card.addEventListener('mouseleave', hideTooltip);
-    card.addEventListener('focus', (e) => showTooltip(e, sp));
-    card.addEventListener('blur', hideTooltip);
+    card.addEventListener('focus',      ev => showTooltip(ev, sp, fKey));
+    card.addEventListener('blur',       hideTooltip);
 
-    // Bouton détails
-    const btn = card.querySelector('.species-btn');
-    btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        toggleDetails(card, sp, btn);
-    });
+    /* Modal */
+    const open = () => openModal(sp, fKey);
+    card.addEventListener('click', open);
+    card.addEventListener('keydown', ev => { if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();open();} });
 
     return card;
 }
 
 /* ============================================================
-   Tooltip
+   TOOLTIP
    ============================================================ */
-function showTooltip(e, sp) {
-    const tooltip = document.getElementById('species-tooltip');
-    if (!tooltip) return;
-
-    tooltip.querySelector('.tooltip-title').textContent = `${sp.scientificName}${sp.author ? ' ' + sp.author : ''}`;
-    tooltip.querySelector('.tooltip-content').innerHTML = buildTooltipContent(sp);
-    tooltip.classList.add('visible');
-    positionTooltip(e);
+function showTooltip(ev, sp, fKey) {
+    const tt = document.getElementById('spTooltip');
+    if (!tt) return;
+    tt.innerHTML = `
+        <div class="sp-tt-title">${e(sp.scientificName)}</div>
+        ${sp.author     ? row('Auteur',    sp.author)     : ''}
+        ${sp.commonName ? row('Nom commun', sp.commonName) : ''}
+        ${fKey          ? row('Famille',   FAMILY_LABELS[fKey]||fKey) : ''}
+        ${sp.color      ? row('Couleur',   sp.color)      : ''}
+        ${sp.size       ? row('Taille',    sp.size)       : ''}
+        ${sp.host       ? row('Plante hôte', sp.host)     : ''}
+        ${sp.description? row('Description', sp.description.slice(0,90)+(sp.description.length>90?'…':'')) : ''}
+        <p style="font-size:.66rem;color:var(--text-d);margin-top:.5rem">Cliquez pour la fiche complète</p>
+    `;
+    tt.classList.add('show');
+    posTooltipAt(ev.clientX, ev.clientY);
 }
 
-function buildTooltipContent(sp) {
-    const rows = [];
-    if (sp.commonName) rows.push(['Nom commun', sp.commonName]);
-    if (sp.suborder) rows.push(['Sous-ordre', sp.suborder]);
-    if (sp.color) rows.push(['Couleur', sp.color]);
-    if (sp.size) rows.push(['Taille', sp.size]);
-    if (sp.host) rows.push(['Plante hôte', sp.host]);
-    if (sp.description) rows.push(['Description', sp.description]);
-
-    return rows.map(([label, val]) =>
-        `<div class="tooltip-row"><span class="tooltip-label">${escHtml(label)} :</span><span>${escHtml(val)}</span></div>`
-    ).join('');
+function row(label, val) {
+    return `<div class="sp-tt-row"><span class="sp-tt-label">${label} :</span><span class="sp-tt-val">${e(val)}</span></div>`;
 }
 
-function positionTooltip(e) {
-    const tooltip = document.getElementById('species-tooltip');
-    if (!tooltip || !tooltip.classList.contains('visible')) return;
-    const margin = 16;
-    const tw = tooltip.offsetWidth;
-    const th = tooltip.offsetHeight;
-    let x = (e.clientX || 0) + margin;
-    let y = (e.clientY || 0) + margin;
-    if (x + tw > window.innerWidth - margin) x = (e.clientX || 0) - tw - margin;
-    if (y + th > window.innerHeight - margin) y = (e.clientY || 0) - th - margin;
-    tooltip.style.left = `${x}px`;
-    tooltip.style.top = `${y}px`;
+function posTooltip(ev) { posTooltipAt(ev.clientX, ev.clientY); }
+function posTooltipAt(cx, cy) {
+    const tt = document.getElementById('spTooltip');
+    if (!tt?.classList.contains('show')) return;
+    const mg=14, tw=300, th=220;
+    let x=cx+mg, y=cy+mg;
+    if (x+tw > window.innerWidth-mg)  x=cx-tw-mg;
+    if (y+th > window.innerHeight-mg) y=cy-th-mg;
+    tt.style.left=x+'px'; tt.style.top=y+'px';
+}
+function hideTooltip() { document.getElementById('spTooltip')?.classList.remove('show'); }
+
+/* ============================================================
+   MODAL
+   ============================================================ */
+function openModal(sp, fKey) {
+    const modal = document.getElementById('speciesModal');
+    const body  = document.getElementById('modalBody');
+    if (!modal || !body) return;
+
+    const img = sp.image ? `<img src="${e(sp.image)}" alt="${e(sp.scientificName)}" class="modal-img" onerror="this.style.display='none'">` : '';
+
+    body.innerHTML = `
+        <div class="modal-header">
+            <span class="modal-order-tag">🪲 Coléoptères</span>
+            <h2 class="modal-title" id="modalTitle">${e(sp.scientificName)}</h2>
+            ${sp.author     ? `<p class="modal-author">${e(sp.author)}</p>` : ''}
+            ${sp.commonName ? `<p class="modal-common">${e(sp.commonName)}</p>` : ''}
+        </div>
+        ${img}
+        <div class="modal-grid">
+            ${sp.scientificName ? `<div class="modal-field"><div class="modal-field-label">Nom scientifique</div><div class="modal-field-value"><em>${e(sp.scientificName)}</em></div></div>` : ''}
+            ${fKey ? `<div class="modal-field"><div class="modal-field-label">Famille</div><div class="modal-field-value">${e(FAMILY_LABELS[fKey]||fKey)}</div></div>` : ''}
+            ${sp.size  ? `<div class="modal-field"><div class="modal-field-label">Taille</div><div class="modal-field-value">${e(sp.size)}</div></div>` : ''}
+            ${sp.color ? `<div class="modal-field"><div class="modal-field-label">Couleur</div><div class="modal-field-value">${e(sp.color)}</div></div>` : ''}
+            ${sp.host  ? `<div class="modal-field" style="grid-column:1/-1"><div class="modal-field-label">Plante hôte</div><div class="modal-field-value">🌿 ${e(sp.host)}</div></div>` : ''}
+        </div>
+        ${sp.description ? `<div class="modal-desc">${e(sp.description)}</div>` : ''}
+        ${sp.suborder ? `<p style="font-size:.8rem;color:var(--text-m);margin-top:.8rem">Sous-ordre : <em>${e(sp.suborder)}</em></p>` : ''}
+        <div class="modal-footer">
+            <a href="https://gd.eppo.int/search?q=${encodeURIComponent(sp.scientificName)}" target="_blank" rel="noopener" class="modal-link">🔬 EPPO Global DB</a>
+            <a href="https://www.catalogueoflife.org/data/search?q=${encodeURIComponent(sp.scientificName)}" target="_blank" rel="noopener" class="modal-link">📚 Catalogue of Life</a>
+        </div>
+    `;
+
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    document.getElementById('modalClose')?.focus();
 }
 
-function hideTooltip() {
-    const tooltip = document.getElementById('species-tooltip');
-    if (tooltip) tooltip.classList.remove('visible');
+function closeModal() {
+    const m = document.getElementById('speciesModal');
+    if (m) { m.hidden = true; document.body.style.overflow = ''; }
+}
+
+function initModal() {
+    document.getElementById('modalClose')?.addEventListener('click', closeModal);
+    document.getElementById('modalOverlay')?.addEventListener('click', closeModal);
+    document.addEventListener('keydown', ev => { if (ev.key==='Escape') closeModal(); });
 }
 
 /* ============================================================
-   Détails inline (toggle)
+   FILTRE
    ============================================================ */
-function toggleDetails(card, sp, btn) {
-    let detailsEl = card.querySelector('.species-details');
-    if (detailsEl) {
-        const open = detailsEl.style.display !== 'none';
-        detailsEl.style.display = open ? 'none' : 'block';
-        btn.setAttribute('aria-expanded', !open);
-        btn.textContent = open ? 'Détails morphologiques ▸' : 'Masquer les détails ▾';
-    } else {
-        detailsEl = document.createElement('div');
-        detailsEl.className = 'species-details';
-        detailsEl.style.cssText = 'padding:0 1rem 1rem;font-size:0.84rem;color:var(--color-text-muted);line-height:1.55;border-top:1px solid var(--color-border);margin-top:0.5rem;';
-        detailsEl.innerHTML = `
-            ${sp.description ? `<p style="margin:0.5rem 0">${escHtml(sp.description)}</p>` : ''}
-            ${sp.color ? `<p><strong>Couleur :</strong> ${escHtml(sp.color)}</p>` : ''}
-            ${sp.size ? `<p><strong>Taille :</strong> ${escHtml(sp.size)}</p>` : ''}
-            ${sp.host ? `<p><strong>Plante hôte :</strong> ${escHtml(sp.host)}</p>` : ''}
-            <p style="margin-top:0.5rem;font-style:italic;font-size:0.75rem;color:rgba(138,171,146,0.5)">
-                Nomenclature conforme au <a href="https://www.catalogueoflife.org" target="_blank" rel="noopener noreferrer" style="color:var(--color-gold)">Catalogue of Life</a>
-            </p>
-        `;
-        card.insertBefore(detailsEl, btn);
-        btn.setAttribute('aria-expanded', 'true');
-        btn.textContent = 'Masquer les détails ▾';
+function initFilter() {
+    const search = document.getElementById('spSearch');
+    const fam    = document.getElementById('famFilter');
+    const noRes  = document.getElementById('noResults');
+    const reset  = document.getElementById('resetBtn');
+    let debounce;
+
+    const apply = () => {
+        clearTimeout(debounce);
+        debounce = setTimeout(() => {
+            const q  = (search?.value||'').toLowerCase().trim();
+            const f  = (fam?.value||'').toLowerCase();
+            let vis  = 0;
+            const secVis = {};
+
+            allCards.forEach(({el, fKey}) => {
+                const match =
+                    (!q || el.dataset.name.includes(q) || el.dataset.common.includes(q) || el.dataset.host.includes(q)) &&
+                    (!f || el.dataset.family === f);
+                el.style.display = match ? '' : 'none';
+                if (match) { vis++; secVis[fKey] = true; }
+            });
+
+            document.querySelectorAll('.family-section').forEach(sec => {
+                sec.style.display = secVis[sec.dataset.family] ? '' : 'none';
+            });
+
+            if (noRes) noRes.classList.toggle('show', vis === 0);
+            updateCount(vis);
+        }, 120);
+    };
+
+    search?.addEventListener('input', apply);
+    fam?.addEventListener('change', apply);
+    reset?.addEventListener('click', () => {
+        if (search) search.value = '';
+        if (fam)    fam.value   = '';
+        apply();
+    });
+}
+
+function updateCount(visible) {
+    const el = document.getElementById('filterCount');
+    if (!el) return;
+    const total = allCards.length;
+    const v = visible !== undefined ? visible : total;
+    el.textContent = v === total ? `${total} espèces` : `${v} / ${total} espèces`;
+}
+
+/* ============================================================
+   PARTICULES
+   ============================================================ */
+function initParticles() {
+    const wrap = document.createElement('div');
+    wrap.className = 'particles-bg';
+    wrap.setAttribute('aria-hidden','true');
+    document.body.insertBefore(wrap, document.body.firstChild);
+
+    const n = window.innerWidth < 600 ? 15 : 35;
+    for (let i=0; i<n; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.left = `${Math.random()*100}%`;
+        p.style.top  = `${Math.random()*100}%`;
+        p.style.animationDelay    = `${(Math.random()*6).toFixed(2)}s`;
+        p.style.animationDuration = `${(Math.random()*4+5).toFixed(2)}s`;
+        wrap.appendChild(p);
     }
 }
 
 /* ============================================================
-   Filtrage
+   UTILITAIRES
    ============================================================ */
-function initFilters() {
-    const searchInput = document.getElementById('speciesSearch');
-    const familySelect = document.getElementById('familyFilter');
-    const noResults = document.getElementById('no-results');
-    const resetBtn = document.getElementById('resetFilters');
-
-    let debounce;
-    const applyFilters = () => {
-        clearTimeout(debounce);
-        debounce = setTimeout(() => {
-            const query = (searchInput?.value || '').toLowerCase().trim();
-            const family = (familySelect?.value || '').toLowerCase();
-
-            let visible = 0;
-            const familySections = {};
-
-            allCards.forEach(({ el, sp, familyKey }) => {
-                const matchSearch = !query ||
-                    el.dataset.name.includes(query) ||
-                    el.dataset.common.includes(query) ||
-                    el.dataset.host.includes(query);
-                const matchFamily = !family || familyKey === family;
-                const show = matchSearch && matchFamily;
-                el.style.display = show ? '' : 'none';
-                if (show) {
-                    visible++;
-                    familySections[familyKey] = true;
-                }
-            });
-
-            // Masquer les sections de famille vides
-            document.querySelectorAll('.family-section').forEach(sec => {
-                sec.style.display = familySections[sec.dataset.family] ? '' : 'none';
-            });
-
-            if (noResults) noResults.hidden = visible > 0;
-            updateFilterCount(visible);
-        }, 120);
-    };
-
-    searchInput?.addEventListener('input', applyFilters);
-    familySelect?.addEventListener('change', applyFilters);
-    resetBtn?.addEventListener('click', () => {
-        if (searchInput) searchInput.value = '';
-        if (familySelect) familySelect.value = '';
-        applyFilters();
-    });
-}
-
-function updateFilterCount(visible) {
-    const countEl = document.getElementById('filterCount');
-    if (!countEl) return;
-    const total = allCards.length;
-    const shown = visible !== undefined ? visible : total;
-    countEl.textContent = shown === total
-        ? `${total} espèces`
-        : `${shown} / ${total} espèces`;
+function e(s) {
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 /* ============================================================
-   Retour en haut
-   ============================================================ */
-function initBackToTop() {
-    const btn = document.getElementById('backToTop');
-    if (!btn) return;
-    window.addEventListener('scroll', () => {
-        btn.classList.toggle('visible', window.scrollY > 400);
-    }, { passive: true });
-    btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-}
-
-/* ============================================================
-   Utilitaires
-   ============================================================ */
-function escHtml(str) {
-    if (!str) return '';
-    return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-}
-
-/* ============================================================
-   Init global
+   INIT
    ============================================================ */
 document.addEventListener('DOMContentLoaded', () => {
-    initializeParticles();
+    initParticles();
+    initModal();
 
-    // Attendre speciesData (chargé en tant que script séparé)
-    const waitForData = setInterval(() => {
+    const wait = setInterval(() => {
         if (window.speciesData) {
-            clearInterval(waitForData);
+            clearInterval(wait);
             renderSpecies();
-            initFilters();
-            initBackToTop();
+            initFilter();
         }
-    }, 50);
-
-    // Timeout de sécurité
-    setTimeout(() => clearInterval(waitForData), 5000);
+    }, 40);
+    setTimeout(() => clearInterval(wait), 5000);
 });
